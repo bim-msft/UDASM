@@ -7,12 +7,12 @@
 //
 
 #include <iostream>
+#include "DASM.h"
 
 int main(int argc, const char * argv[])
 {
-
-    // insert code here...
-    std::cout << "Hello, World!\n";
+    DASM *UDASM = new DASM("/Users/uranux/blank.exe", INTEL_X86, CPU_MODE_32, ADDRESS_MODE_32, UDASM_LITTLE_ENDIAN);
+    delete UDASM;
     return 0;
 }
 
