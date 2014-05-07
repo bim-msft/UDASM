@@ -75,18 +75,6 @@ map<BYTE, string> InstructionDef::InitOpcode()
     return RetVal;
 }
 
-map<BYTE, string> InstructionDef::InitRM()
-{
-    map<BYTE, string> RetVal;
-    RetVal[RM8_R8] = "";
-    RetVal[RM16_R16] = "";
-    RetVal[R8_RM8] = "";
-    RetVal[R16_RM16] = "";
-    RetVal[AL_I8] = "";
-    RetVal[RAX_I16] = "";
-    return RetVal;
-}
-
 map<BYTE, string> InstructionDef::InitReg(BYTE GroupID)
 {
     map<BYTE, string> RetVal;
@@ -131,6 +119,15 @@ map<BYTE, string> InstructionDef::InitReg(BYTE GroupID)
             RetVal[REG_ADDRESS16_BP] = "bp";
             RetVal[REG_ADDRESS16_SI] = "si";
             RetVal[REG_ADDRESS16_DI] = "di";
+            break;
+        case SEGMENT_REG:
+            RetVal[REG_CS] = "cs";
+            RetVal[REG_DS] = "ds";
+            RetVal[REG_ES] = "es";
+            RetVal[REG_FS] = "fs";
+            RetVal[REG_GS] = "gs";
+            RetVal[REG_SS] = "ss";
+            break;
         default:
             break;
     }
@@ -161,11 +158,6 @@ map<BYTE, string>& InstructionDef::GetOpcode()
     return InstructionDef::Opcode;
 }
 
-map<BYTE, string>& InstructionDef::GetRM()
-{
-    return InstructionDef::RM;
-}
-
 map<BYTE, string>& InstructionDef::GetReg(BYTE GroupID)
 {
     return InstructionDef::Reg[GroupID];
@@ -179,8 +171,7 @@ map<BYTE, string>& InstructionDef::GetAddressHead()
 map<BYTE, string> InstructionDef::Prefix[4];
 map<BYTE, string> InstructionDef::SinglePrefixName;
 map<BYTE, string> InstructionDef::Opcode;
-map<BYTE, string> InstructionDef::RM;
-map<BYTE, string> InstructionDef::Reg[4];
+map<BYTE, string> InstructionDef::Reg[5];
 map<BYTE, string> InstructionDef::AddressHead;
 
 
