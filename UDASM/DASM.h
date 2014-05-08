@@ -17,12 +17,12 @@
 #define AT_AND_T              0x01
 
 /* CPU Working Mode */
-#define CPU_MODE_32           0x00
 #define CPU_MODE_16           0x01
+#define CPU_MODE_32           0x02
 
 /* CPU Addressing Mode */
-#define ADDRESS_MODE_32       0x00
 #define ADDRESS_MODE_16       0x01
+#define ADDRESS_MODE_32       0x02
 
 /* Byte Order */
 #define UDASM_BIG_ENDIAN      0x00
@@ -71,12 +71,8 @@ public:
     string FormatAsmWord(WORD CntWord);
     string FormatBinDWord(DWORD CntDWord);
     string FormatAsmDWord(DWORD CntDWord);
-    void ProcessMODRM_RM8_R8(ifstream &ExeFile, stringstream &BinStream, stringstream &AsmStream);
-    void ProcessMODRM_RM16_R16(ifstream &ExeFile, stringstream &BinStream, stringstream &AsmStream, BYTE Opcode);
-    void ProcessMODRM_R8_RM8(ifstream &ExeFile, stringstream &BinStream, stringstream &AsmStream);
-    void ProcessMODRM_R16_RM16(ifstream &ExeFile, stringstream &BinStream, stringstream &AsmStream);
-    void ProcessMODRM_AL_I8(ifstream &ExeFile, stringstream &BinStream, stringstream &AsmStream);
-    void ProcessMODRM_RAX_I16(ifstream &ExeFile, stringstream &BinStream, stringstream &AsmStream);
+    void ProcessMODRM(ifstream &ExeFile, stringstream &BinStream, stringstream &AsmStream, BYTE Opcode);
+    void ProcessMODRM_RAX_I16(ifstream &ExeFile, stringstream &BinStream, stringstream &AsmStream, BYTE Opcode);
     void StringStreamClear(stringstream &SStream);
 };
 

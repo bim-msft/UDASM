@@ -71,6 +71,7 @@ map<BYTE, string> InstructionDef::InitOpcode()
     RetVal[OPCODE_SUB] = "sub";
     RetVal[OPCODE_XOR] = "xor";
     RetVal[OPCODE_CMP] = "cmp";
+    RetVal[OPCODE_MOV] = "mov";
     RetVal[OPCODE_NOP] = "nop";
     return RetVal;
 }

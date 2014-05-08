@@ -43,6 +43,7 @@
 #define OPCODE_SUB                   0x28
 #define OPCODE_XOR                   0x30
 #define OPCODE_CMP                   0x38
+#define OPCODE_MOV                   0x88
 #define OPCODE_NOP                   0x90
 // Mode in Opcode Byte (RM)
 #define RM8_R8                       0x00
@@ -51,21 +52,16 @@
 #define R16_RM16                     0x03
 #define AL_I8                        0x04
 #define RAX_I16                      0x05
-// Opcode2 in Opcode Byte (Reg/Opcode)
-#define OPCODE2_ADD                  0x00
-#define OPCODE2_OR                   0x01
-#define OPCODE2_ADC                  0x02
-#define OPCODE2_SBB                  0x03
-#define OPCODE2_AND                  0x04
-#define OPCODE2_SUB                  0x05
-#define OPCODE2_XOR                  0x06
-#define OPCODE2_CMP                  0x07
+// Special Opcode Bit
+#define GET_D_BIT(A)                 (((A) >> 1) & 0x01) // For Non-Immediate Number Instruction (Operands Order Switch)
+#define GET_S_BIT(A)                 (((A) >> 1) & 0x01) // For Immediate Number Instruction (Signed Or Unsigned)
+#define GET_W_BIT(A)                 ((A) & 0x01) // Operands Size Switch (8 - 16/32)
 
 /* ModR/M */
 // Mod
 #define MOD_M_NO_DISPLACEMENT        0x00
 #define MOD_M_DISPLACEMENT_8         0x01
-#define MOD_M_DISPLACEMENT_16        0x02
+#define MOD_M_DISPLACEMENT_16_32     0x02
 #define MOD_R_NO_DISPLACEMENT        0x03
 // Register Name (8 Bits)
 #define REG_AL_8                     0x00
@@ -112,8 +108,8 @@
 #define REG_SS                       0x05
 // Special Values For RM
 #define RM_SIB_FLAG                  0x04 // Only For 32-Bits Addressing Mode 
-#define RM_ONLY_DISPLACEMENT_16_FLAG 0x05 // Only When AddressMode == 32 Bits && Mod == MOD_M_NO_DISPLACEMENT(0x00)
-#define RM_ADDRESS16_SMALL_FLAG      0x06 // Only When AddressMode == 16 Bits && Mod == MOD_M_NO_DISPLACEMENT(0x00)
+#define RM_ONLY_DISPLACEMENT_32_FLAG 0x05 // Only When AddressMode == 32 Bits && Mod == MOD_M_NO_DISPLACEMENT(0x00)
+#define RM_ONLY_DISPLACEMENT_16_FLAG 0x06 // Only When AddressMode == 16 Bits && Mod == MOD_M_NO_DISPLACEMENT(0x00)
 // Index For InstructionDef::Reg
 #define REGSIZE_8                    0x00
 #define REGSIZE_16                   0x01
@@ -134,10 +130,6 @@
 #define GET_SCALE(A)                 (((A) >> 6) & 0x03)
 #define GET_INDEX(A)                 (((A) >> 3) & 0x07)
 #define GET_BASE(A)                  ((A) & 0x07)
-
-#define GET_D_BIT(A)                 (((A) >> 1) & 0x01)
-#define GET_W_BIT(A)                 ((A) & 0x01)
-#define GET_S_BIT(A)                 (((A) >> 1) & 0x01) // ???
 
 class InstructionDef
 {
