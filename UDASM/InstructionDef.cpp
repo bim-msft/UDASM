@@ -64,14 +64,31 @@ map<BYTE, string> InstructionDef::InitOpcode()
 {
     map<BYTE, string> RetVal;
     RetVal[OPCODE_ADD] = "add";
+    RetVal[OPCODE_PUSH_ES] = "push";
+    RetVal[OPCODE_POP_ES] = "pop";
     RetVal[OPCODE_OR] = "or";
+    RetVal[OPCODE_PUSH_CS] = "push";
+    RetVal[OPCODE_POP_CS] = "pop";
     RetVal[OPCODE_ADC] = "adc";
+    RetVal[OPCODE_PUSH_SS] = "push";
+    RetVal[OPCODE_POP_SS] = "pop";
     RetVal[OPCODE_SBB] = "sbb";
+    RetVal[OPCODE_PUSH_DS] = "push";
+    RetVal[OPCODE_POP_DS] = "pop";
     RetVal[OPCODE_AND] = "and";
+    RetVal[OPCODE_DAA] = "daa";
     RetVal[OPCODE_SUB] = "sub";
+    RetVal[OPCODE_DAS] = "das";
     RetVal[OPCODE_XOR] = "xor";
+    RetVal[OPCODE_AAA] = "aaa";
     RetVal[OPCODE_CMP] = "cmp";
+    RetVal[OPCODE_AAS] = "aas";
+    RetVal[OPCODE_INC] = "inc";
+    RetVal[OPCODE_DEC] = "dec";
     RetVal[OPCODE_MOV] = "mov";
+    RetVal[OPCODE_PUSH] = "push";
+    RetVal[OPCODE_POP] = "pop";
+    RetVal[OPCODE_PUSH_I16_I32] = "push";
     RetVal[OPCODE_NOP] = "nop";
     return RetVal;
 }

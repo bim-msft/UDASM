@@ -79,7 +79,7 @@ void DASM::INTEL_X86_Exec(string FileName)
     BYTE PrefixConflicting = NO_PREFIX_CONFLICTION;
     while (ExeFile)
     {
-        if (Line > 80)
+        if (Line > 150)
             break;
         BYTE CntByte = this->ReadByte(ExeFile);
         BinStream << this->FormatByte(CntByte) << " ";
@@ -243,7 +243,8 @@ void DASM::INTEL_X86_Exec(string FileName)
             PrefixPos[3] = ExeFile.tellg();
             continue;
         }
-    
+        WORD I16;
+        DWORD I32;
         switch (CntByte) {
             case OPCODE_ADD + RM8_R8:
             case OPCODE_ADD + RM16_R16:
@@ -316,8 +317,84 @@ void DASM::INTEL_X86_Exec(string FileName)
                         break;
                 }
                 break;
+            case OPCODE_INC + REG_EAX_32:
+            case OPCODE_INC + REG_ECX_32:
+            case OPCODE_INC + REG_EDX_32:
+            case OPCODE_INC + REG_EBX_32:
+            case OPCODE_INC + REG_ESP_32:
+            case OPCODE_INC + REG_EBP_32:
+            case OPCODE_INC + REG_ESI_32:
+            case OPCODE_INC + REG_EDI_32:
+            case OPCODE_DEC + REG_EAX_32:
+            case OPCODE_DEC + REG_ECX_32:
+            case OPCODE_DEC + REG_EDX_32:
+            case OPCODE_DEC + REG_EBX_32:
+            case OPCODE_DEC + REG_ESP_32:
+            case OPCODE_DEC + REG_EBP_32:
+            case OPCODE_DEC + REG_ESI_32:
+            case OPCODE_DEC + REG_EDI_32:
+            case OPCODE_PUSH + REG_EAX_32:
+            case OPCODE_PUSH + REG_ECX_32:
+            case OPCODE_PUSH + REG_EDX_32:
+            case OPCODE_PUSH + REG_EBX_32:
+            case OPCODE_PUSH + REG_ESP_32:
+            case OPCODE_PUSH + REG_EBP_32:
+            case OPCODE_PUSH + REG_ESI_32:
+            case OPCODE_PUSH + REG_EDI_32:
+            case OPCODE_POP + REG_EAX_32:
+            case OPCODE_POP + REG_ECX_32:
+            case OPCODE_POP + REG_EDX_32:
+            case OPCODE_POP + REG_EBX_32:
+            case OPCODE_POP + REG_ESP_32:
+            case OPCODE_POP + REG_EBP_32:
+            case OPCODE_POP + REG_ESI_32:
+            case OPCODE_POP + REG_EDI_32:
+                AsmStream << InstructionDef::GetOpcode()[CntByte - GET_RM(CntByte)] << " ";
+                AsmStream << InstructionDef::GetReg(this->GetCPUMode())[GET_RM(CntByte)];
+                break;
+            case OPCODE_PUSH_ES:
+            case OPCODE_POP_ES:
+                AsmStream << InstructionDef::GetOpcode()[CntByte] << " ";
+                AsmStream << InstructionDef::GetReg(SEGMENT_REG)[REG_ES];
+                break;
+            case OPCODE_PUSH_CS:
+            case OPCODE_POP_CS:
+                AsmStream << InstructionDef::GetOpcode()[CntByte] << " ";
+                AsmStream << InstructionDef::GetReg(SEGMENT_REG)[REG_CS];
+                break;
+            case OPCODE_PUSH_SS:
+            case OPCODE_POP_SS:
+                AsmStream << InstructionDef::GetOpcode()[CntByte] << " ";
+                AsmStream << InstructionDef::GetReg(SEGMENT_REG)[REG_SS];
+                break;
+            case OPCODE_PUSH_DS:
+            case OPCODE_POP_DS:
+                AsmStream << InstructionDef::GetOpcode()[CntByte] << " ";
+                AsmStream << InstructionDef::GetReg(SEGMENT_REG)[REG_DS];
+                break;
+            case OPCODE_PUSH_I16_I32:
+                AsmStream << InstructionDef::GetOpcode()[CntByte] << " ";
+                switch (this->GetCPUMode()) {
+                    case CPU_MODE_16:
+                        I16 = this->ReadWord(ExeFile);
+                        BinStream << this->FormatBinWord(I16) << " ";
+                        AsmStream << "word " << this->FormatAsmWord(I16) << "h";
+                        break;
+                    case CPU_MODE_32:
+                        I32 = this->ReadDWord(ExeFile);
+                        BinStream << this->FormatBinDWord(I32) << " ";
+                        AsmStream << this->FormatAsmDWord(I32) << "h";
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case OPCODE_DAA:
+            case OPCODE_DAS:
+            case OPCODE_AAA:
+            case OPCODE_AAS:
             case OPCODE_NOP:
-                AsmStream << InstructionDef::GetOpcode()[OPCODE_NOP];
+                AsmStream << InstructionDef::GetOpcode()[CntByte];
                 break;
             default:
                 AsmStream << "??? ";
@@ -586,15 +663,18 @@ void DASM::ProcessMODRM(ifstream &ExeFile, stringstream &BinStream, stringstream
             case ADDRESS_MODE_32: // 32 Bits Addressing
                 if (MOD == MOD_M_NO_DISPLACEMENT && RM == RM_ONLY_DISPLACEMENT_32_FLAG)
                 {
-                    Operand[0] += "[" + InstructionDef::GetReg(REGSIZE_32)[REG_EAX_32] + "]";
+                    I32 = this->ReadDWord(ExeFile);
+                    BinStream << this->FormatBinDWord(I32) << " ";
+                    Operand[0] += "[" + this->FormatAsmDWord(I32) + "h]";
                     if (GET_W_BIT(Opcode) == 0x00)
                     {
-                        Operand[1] += InstructionDef::GetReg(REGSIZE_8)[REG_AL_8];
+                        Operand[1] += InstructionDef::GetReg(REGSIZE_8)[REG];
                     }
                     else
                     {
-                        Operand[1] += InstructionDef::GetReg(this->GetCPUMode())[REG_AX_16];
+                        Operand[1] += InstructionDef::GetReg(this->GetCPUMode())[REG];
                     }
+                
                     break;
                 }
                 switch (RM)
@@ -633,7 +713,7 @@ void DASM::ProcessMODRM(ifstream &ExeFile, stringstream &BinStream, stringstream
                             case MOD_M_DISPLACEMENT_16_32:
                                 DISP32 = this->ReadDWord(ExeFile);
                                 BinStream << this->FormatBinDWord(DISP32) << " ";
-                                Operand[0] += " + " + this->FormatAsmDWord(DISP32);
+                                Operand[0] += " + " + this->FormatAsmDWord(DISP32) + "h";
                                 break;
                             default:
                                 break;

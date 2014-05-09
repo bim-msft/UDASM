@@ -15,36 +15,53 @@
 
 /* Instruction Prefix */
 // Group 1 (Repeat Prefix)
-#define REPEAT_PREFIX_LOCK           0xF0
-#define REPEAT_PREFIX_REP            0xF3
+#define REPEAT_PREFIX_LOCK           0xF0 // 0xF0
+#define REPEAT_PREFIX_REP            0xF3 // 0xF3
 #define REPEAT_PREFIX_REPE           0xF3
 #define REPEAT_PREFIX_REPZ           0xF3
-#define REPEAT_PREFIX_REPNE          0xF2
+#define REPEAT_PREFIX_REPNE          0xF2 // 0xF2
 #define REPEAT_PREFIX_REPNZ          0xF2
 // Group 2 (Default Segment Register Switch)
-#define SEGMENT_PREFIX_ES            0x26
-#define SEGMENT_PREFIX_CS            0x2E
-#define SEGMENT_PREFIX_SS            0x36
-#define SEGMENT_PREFIX_DS            0x3E
-#define SEGMENT_PREFIX_FS            0x64
-#define SEGMENT_PREFIX_GS            0x65
+#define SEGMENT_PREFIX_ES            0x26 // 0x26
+#define SEGMENT_PREFIX_CS            0x2E // 0x2E
+#define SEGMENT_PREFIX_SS            0x36 // 0x36
+#define SEGMENT_PREFIX_DS            0x3E // 0x3E
+#define SEGMENT_PREFIX_FS            0x64 // 0x64
+#define SEGMENT_PREFIX_GS            0x65 // 0x65
 // Group 3 (Operands Size Switch (16/32))
-#define OPERAND_PREFIX               0x66
+#define OPERAND_PREFIX               0x66 // 0x66
 // Group 4 (Addressing Size Switch (16/32))
-#define ADDRESS_PREFIX               0x67
+#define ADDRESS_PREFIX               0x67 // 0x67
 
 /* Opcode */
 // Opcode Byte
-#define OPCODE_ADD                   0x00
-#define OPCODE_OR                    0x08
-#define OPCODE_ADC                   0x10
-#define OPCODE_SBB                   0x18
-#define OPCODE_AND                   0x20
-#define OPCODE_SUB                   0x28
-#define OPCODE_XOR                   0x30
-#define OPCODE_CMP                   0x38
-#define OPCODE_MOV                   0x88
-#define OPCODE_NOP                   0x90
+#define OPCODE_ADD                   0x00 // 0x00 ~ 0x05 (+RM)
+#define OPCODE_PUSH_ES               0x06 // 0x06
+#define OPCODE_POP_ES                0x07 // 0x07
+#define OPCODE_OR                    0x08 // 0x08 ~ 0x0D (+RM)
+#define OPCODE_PUSH_CS               0x0E // 0x0E
+#define OPCODE_POP_CS                0x0F // 0x0F
+#define OPCODE_ADC                   0x10 // 0x10 ~ 0x15 (+RM)
+#define OPCODE_PUSH_SS               0x16 // 0x16
+#define OPCODE_POP_SS                0x17 // 0x17
+#define OPCODE_SBB                   0x18 // 0x18 ~ 0x1D (+RM)
+#define OPCODE_PUSH_DS               0x1E // 0x1E
+#define OPCODE_POP_DS                0x1F // 0x1F
+#define OPCODE_AND                   0x20 // 0x20 ~ 0x25 (+RM)
+#define OPCODE_DAA                   0x27 // 0x27
+#define OPCODE_SUB                   0x28 // 0x28 ~ 0x2D (+RM)
+#define OPCODE_DAS                   0x2F // 0x2F
+#define OPCODE_XOR                   0x30 // 0x30 ~ 0x35 (+RM)
+#define OPCODE_AAA                   0x37 // 0x37
+#define OPCODE_CMP                   0x38 // 0x38 ~ 0x3D (+RM)
+#define OPCODE_AAS                   0x3F // 0x3F
+#define OPCODE_INC                   0x40 // 0x40 ~ 0x47 (+REG)
+#define OPCODE_DEC                   0x48 // 0x48 ~ 0x4F (+REG)
+#define OPCODE_PUSH                  0x50 // 0x50 ~ 0x57 (+REG)
+#define OPCODE_POP                   0x58 // 0x58 ~ 0x65 (+REG)
+#define OPCODE_PUSH_I16_I32          0x68 // 0x68
+#define OPCODE_MOV                   0x88 // 0x88 ~ 0x8D (+RM)
+#define OPCODE_NOP                   0x90 // 0x90
 // Mode in Opcode Byte (RM)
 #define RM8_R8                       0x00
 #define RM16_R16                     0x01
