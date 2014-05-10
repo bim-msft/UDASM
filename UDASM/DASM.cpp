@@ -10,15 +10,15 @@
 
 DASM::DASM(string FileName, BYTE Arch, BYTE CPUMode, BYTE AddressMode, BYTE ByteOrder)
 {
-    this->BaseInit(CPUMode, AddressMode, ByteOrder);
+    this->BaseInit(FileName, CPUMode, AddressMode, ByteOrder);
     switch (Arch) {
         case INTEL_X86:
             this->INTEL_X86_Init();
-            this->INTEL_X86_Exec(FileName);
+            this->INTEL_X86_Exec();
             break;
         case AT_AND_T:
             this->AT_AND_T_Init();
-            this->AT_AND_T_Exec(FileName);
+            this->AT_AND_T_Exec();
             break;
         default:
             break;
@@ -30,8 +30,11 @@ DASM::~DASM()
     
 }
 
-void DASM::BaseInit(BYTE DefaultCPUMode, BYTE DefaultAddressMode, BYTE DefaultByteOrder)
+void DASM::BaseInit(string FileName, BYTE DefaultCPUMode, BYTE DefaultAddressMode, BYTE DefaultByteOrder)
 {
+    this->GetExeFile() = ifstream(FileName);
+    this->GetAsmStream() = stringstream();
+    this->GetBinStream() = stringstream();
     this->SetDefaultCPUMode(DefaultCPUMode);
     this->SetDefaultAddressMode(DefaultAddressMode);
     this->SetDefaultByteOrder(DefaultByteOrder);
@@ -66,48 +69,44 @@ void DASM::AT_AND_T_Init()
     
 }
 
-void DASM::INTEL_X86_Exec(string FileName)
+void DASM::INTEL_X86_Exec()
 {
-    ifstream ExeFile(FileName);
-    ExeFile.seekg(1024);
+    this->GetExeFile().seekg(1024); // TODO
     int Line = 0;
     Instruction *CntInstruction = new Instruction();
-    stringstream BinStream;
-    stringstream AsmStream;
     long long InstructionStartPos = ExeFile.tellg();
     long long PrefixPos[4];
     memset(PrefixPos, -1, sizeof(PrefixPos));
     BYTE PrefixConflicting = NO_PREFIX_CONFLICTION;
-    while (ExeFile)
+    while (this->GetExeFile())
     {
         if (Line > 150)
             break;
-        BYTE CntByte = this->ReadByte(ExeFile);
-        BinStream << this->FormatByte(CntByte) << " ";
+        BYTE CntByte = this->ReadByte();
         string BinByte;
         string AsmVal;
         if (PrefixConflicting != NO_PREFIX_CONFLICTION)
         {
             Line++;
             cout << setw(4) << setfill('0') << Line << " ";
-            while (BinStream >> BinByte)
+            while (this->GetBinStream() >> BinByte)
             {
                 cout << BinByte << " ";
             }
             cout << "| ";
             string Val = InstructionDef::GetSinglePrefixName()[CntByte];
-            AsmStream << Val + " ";
-            while (AsmStream >> AsmVal)
+            this->GetAsmStream() << Val + " ";
+            while (this->GetAsmStream() >> AsmVal)
             {
                 cout << AsmVal << " ";
             }
             cout << endl;
-            this->StringStreamClear(AsmStream);
-            this->StringStreamClear(BinStream);
+            this->StringStreamClear(this->GetAsmStream());
+            this->StringStreamClear(this->GetBinStream());
             this->ResetMode();
-            if (ExeFile.tellg() == PrefixPos[PrefixConflicting])
+            if (this->GetExeFile().tellg() == PrefixPos[PrefixConflicting])
             {
-                InstructionStartPos = ExeFile.tellg();
+                InstructionStartPos = this->GetExeFile().tellg();
                 PrefixConflicting = NO_PREFIX_CONFLICTION;
             }
             continue;
@@ -119,15 +118,15 @@ void DASM::INTEL_X86_Exec(string FileName)
         {
             if (CntInstruction->GetRepeatPrefix() != NULL_VAL)
             {
-                ExeFile.seekg(InstructionStartPos);
+                this->GetExeFile().seekg(InstructionStartPos);
                 PrefixConflicting = 0;
                 CntInstruction->Clear();
-                this->StringStreamClear(AsmStream);
-                this->StringStreamClear(BinStream);
+                this->StringStreamClear(this->GetAsmStream());
+                this->StringStreamClear(this->GetBinStream());
                 continue;
             }
             string Val = InstructionDef::GetPrefix(0)[CntByte];
-            AsmStream << Val + " ";
+            this->GetAsmStream() << Val + " ";
             switch (CntByte) {
                 case REPEAT_PREFIX_LOCK:
                     break;
@@ -139,7 +138,7 @@ void DASM::INTEL_X86_Exec(string FileName)
                     break;
             }
             CntInstruction->SetRepeatPrefix(CntByte);
-            PrefixPos[0] = ExeFile.tellg();
+            PrefixPos[0] = this->GetExeFile().tellg();
             continue;
         }
         // 第二组
@@ -150,7 +149,7 @@ void DASM::INTEL_X86_Exec(string FileName)
                 ExeFile.seekg(InstructionStartPos);
                 PrefixConflicting = 1;
                 CntInstruction->Clear();
-                this->StringStreamClear(AsmStream);
+                this->StringStreamClear(this->GetAsmStream());
                 this->StringStreamClear(BinStream);
                 continue;
             }
@@ -177,7 +176,7 @@ void DASM::INTEL_X86_Exec(string FileName)
                     break;
             }
             CntInstruction->SetSegmentPrefix(CntByte);
-            PrefixPos[1] = ExeFile.tellg();
+            PrefixPos[1] = this->GetExeFile().tellg();
             continue;
         }
         // 第三组
@@ -185,11 +184,11 @@ void DASM::INTEL_X86_Exec(string FileName)
         {
             if (CntInstruction->GetOperandPrefix() != NULL_VAL)
             {
-                ExeFile.seekg(InstructionStartPos);
+                this->GetExeFile().seekg(InstructionStartPos);
                 PrefixConflicting = 2;
                 CntInstruction->Clear();
-                this->StringStreamClear(AsmStream);
-                this->StringStreamClear(BinStream);
+                this->StringStreamClear(this->GetAsmStream());
+                this->StringStreamClear(this->GetBinStream());
                 continue;
             }
             switch (CntByte) {
@@ -209,7 +208,7 @@ void DASM::INTEL_X86_Exec(string FileName)
                     break;
             }
             CntInstruction->SetOperandPrefix(CntByte);
-            PrefixPos[2] = ExeFile.tellg();
+            PrefixPos[2] = this->GetExeFile().tellg();
             continue;
         }
         // 第四组
@@ -217,11 +216,11 @@ void DASM::INTEL_X86_Exec(string FileName)
         {
             if (CntInstruction->GetAddressPrefix() != NULL_VAL)
             {
-                ExeFile.seekg(InstructionStartPos);
+                this->GetExeFile().seekg(InstructionStartPos);
                 PrefixConflicting = 3;
                 CntInstruction->Clear();
-                this->StringStreamClear(AsmStream);
-                this->StringStreamClear(BinStream);
+                this->StringStreamClear(this->GetAsmStream());
+                this->StringStreamClear(this->GetBinStream());
                 continue;
             }
             switch (CntByte) {
@@ -241,7 +240,7 @@ void DASM::INTEL_X86_Exec(string FileName)
                     break;
             }
             CntInstruction->SetAddressPrefix(CntByte);
-            PrefixPos[3] = ExeFile.tellg();
+            PrefixPos[3] = this->GetExeFile().tellg();
             continue;
         }
         BYTE MODRM;
@@ -300,23 +299,22 @@ void DASM::INTEL_X86_Exec(string FileName)
             case OPCODE_MOV + R16_RM16:
             case OPCODE_MOV + AL_I8:
             case OPCODE_MOV + RAX_I16:
-                AsmStream << InstructionDef::GetOpcode()[CntByte - GET_RM(CntByte)] << " ";
+                this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte - GET_RM(CntByte)] << " ";
                 switch (GET_RM(CntByte)) {
                     case RM8_R8:
                     case RM16_R16:
                     case R8_RM8:
                     case R16_RM16:
-                        MODRM = this->ReadByte(ExeFile);
-                        BinStream << this->FormatByte(MODRM) << " ";
-                        AsmStream << this->ParseMODRM_RM_RM(ExeFile, BinStream, CntByte, MODRM);
+                        MODRM = this->ReadByte();
+                        this->GetAsmStream() << this->ParseMODRM_RM_RM(CntByte, MODRM);
                         break;
                     case AL_I8:
                     case RAX_I16:
-                        AsmStream << this->ParseRegisterOperand(CntByte, REG_EAX_32) << ", ";
-                        AsmStream << this->ParseImmediateOperand(ExeFile, BinStream, CntByte);
+                        this->GetAsmStream() << this->ParseRegisterOperand(CntByte, REG_EAX_32) << ", ";
+                        this->GetAsmStream() << this->ParseImmediateOperand(CntByte);
                         break;
                     default:
-                        AsmStream << "??? ";
+                        this->GetAsmStream() << "??? ";
                         break;
                 }
                 break;
@@ -352,45 +350,44 @@ void DASM::INTEL_X86_Exec(string FileName)
             case OPCODE_POP + REG_EBP_32:
             case OPCODE_POP + REG_ESI_32:
             case OPCODE_POP + REG_EDI_32:
-                AsmStream << InstructionDef::GetOpcode()[CntByte - GET_RM(CntByte)] << " ";
-                AsmStream << InstructionDef::GetReg(this->GetCPUMode())[GET_RM(CntByte)];
+                this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte - GET_RM(CntByte)] << " ";
+                this->GetAsmStream() << InstructionDef::GetReg(this->GetCPUMode())[GET_RM(CntByte)];
                 break;
             case OPCODE_PUSH_ES:
             case OPCODE_POP_ES:
-                AsmStream << InstructionDef::GetOpcode()[CntByte] << " ";
-                AsmStream << InstructionDef::GetReg(SEGMENT_REG)[REG_ES];
+                this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
+                this->GetAsmStream() << InstructionDef::GetReg(SEGMENT_REG)[REG_ES];
                 break;
             case OPCODE_PUSH_CS:
             case OPCODE_POP_CS:
-                AsmStream << InstructionDef::GetOpcode()[CntByte] << " ";
-                AsmStream << InstructionDef::GetReg(SEGMENT_REG)[REG_CS];
+                this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
+                this->GetAsmStream() << InstructionDef::GetReg(SEGMENT_REG)[REG_CS];
                 break;
             case OPCODE_PUSH_SS:
             case OPCODE_POP_SS:
-                AsmStream << InstructionDef::GetOpcode()[CntByte] << " ";
-                AsmStream << InstructionDef::GetReg(SEGMENT_REG)[REG_SS];
+                this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
+                this->GetAsmStream() << InstructionDef::GetReg(SEGMENT_REG)[REG_SS];
                 break;
             case OPCODE_PUSH_DS:
             case OPCODE_POP_DS:
-                AsmStream << InstructionDef::GetOpcode()[CntByte] << " ";
-                AsmStream << InstructionDef::GetReg(SEGMENT_REG)[REG_DS];
+                this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
+                this->GetAsmStream() << InstructionDef::GetReg(SEGMENT_REG)[REG_DS];
                 break;
             case OPCODE_PUSH_I16_I32:
-                AsmStream << InstructionDef::GetOpcode()[CntByte] << " ";
-                AsmStream << this->ParseImmediateOperand_I16_I32(ExeFile, BinStream);
+                this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
+                this->GetAsmStream() << this->ParseImmediateOperand_I16_I32();
                 break;
             case OPCODE_TEST_GROUP + RM8_R8:
             case OPCODE_TEST_GROUP + RM16_R16:
-                MODRM = this->ReadByte(ExeFile);
-                BinStream << this->FormatByte(MODRM) << " ";
-                AsmStream << InstructionDef::GetSubOpcode_TestGroup()[GET_OPCODE2(MODRM)] << " ";
+                MODRM = this->ReadByte();
+                this->GetAsmStream() << InstructionDef::GetSubOpcode_TestGroup()[GET_OPCODE2(MODRM)] << " ";
                 switch (GET_OPCODE2(MODRM)) {
                     case SUB_OPCODE_TEST_0:
                     case SUB_OPCODE_TEST_1:
-                        AsmStream << this->ParseMODRM_RM_IMM(ExeFile, BinStream, CntByte, MODRM);
+                        this->GetAsmStream() << this->ParseMODRM_RM_IMM(CntByte, MODRM);
                         break;
                     default:
-                        AsmStream << this->ParseMODRM_RM(ExeFile, BinStream, CntByte, MODRM);
+                        this->GetAsmStream() << this->ParseMODRM_RM(CntByte, MODRM);
                         break;
                 }
                 break;
@@ -399,28 +396,28 @@ void DASM::INTEL_X86_Exec(string FileName)
             case OPCODE_AAA:
             case OPCODE_AAS:
             case OPCODE_NOP:
-                AsmStream << InstructionDef::GetOpcode()[CntByte];
+                this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte];
                 break;
             default:
-                AsmStream << "??? ";
+                this->GetAsmStream() << "??? ";
                 break;
         }
         //
         CntInstruction->Clear();
         Line++;
         cout << setw(4) << setfill('0') << Line << " ";
-        while (BinStream >> BinByte)
+        while (this->GetBinStream() >> BinByte)
         {
             cout << BinByte << " ";
         }
         cout << "| ";
-        while (AsmStream >> AsmVal)
+        while (this->GetAsmStream() >> AsmVal)
         {
             cout << AsmVal << " ";
         }
         cout << endl;
-        this->StringStreamClear(AsmStream);
-        this->StringStreamClear(BinStream);
+        this->StringStreamClear(this->GetAsmStream());
+        this->StringStreamClear(this->GetBinStream());
         this->ResetMode();
         InstructionStartPos = ExeFile.tellg();
     }
@@ -428,7 +425,7 @@ void DASM::INTEL_X86_Exec(string FileName)
     ExeFile.close();
 }
 
-void DASM::AT_AND_T_Exec(string FileName)
+void DASM::AT_AND_T_Exec()
 {
     
 }
@@ -493,42 +490,58 @@ BYTE DASM::GetDefaultByteOrder()
     return this->DefaultByteOrder;
 }
 
-BYTE DASM::ReadByte(ifstream &ExeFile)
+stringstream& DASM::GetAsmStream()
+{
+    return this->AsmStream;
+}
+
+stringstream& DASM::GetBinStream()
+{
+    return this->BinStream;
+}
+
+ifstream& DASM::GetExeFile()
+{
+    return this->ExeFile;
+}
+
+BYTE DASM::ReadByte()
 {
     BYTE CntByte = 0;
-    if (ExeFile)
+    if (this->GetExeFile())
     {
-        ExeFile.read((char*)&CntByte, 1);
+        this->GetExeFile().read((char*)&CntByte, 1);
     }
+    this->GetBinStream() << this->FormatByte(CntByte) << " ";
     return CntByte;
 }
 
-WORD DASM::ReadWord(ifstream &ExeFile)
+WORD DASM::ReadWord()
 {
     BYTE CntByte[2];
     for (int i = 0; i < 2; i++)
     {
-        CntByte[i] = this->ReadByte(ExeFile);
+        CntByte[i] = this->ReadByte();
     }
     return MAKE_WORD(CntByte[0], CntByte[1]);
 }
 
-DWORD DASM::ReadDWord(ifstream &ExeFile)
+DWORD DASM::ReadDWord()
 {
     WORD CntWord[2];
     for (int i = 0; i < 2; i++)
     {
-        CntWord[i] = this->ReadWord(ExeFile);
+        CntWord[i] = this->ReadWord();
     }
     return MAKE_DWORD_2(CntWord[0], CntWord[1]);
 }
 
 string DASM::FormatByte(BYTE CntByte)
 {
-    stringstream BinStream;
-    BinStream << setiosflags(ios::uppercase) << setfill('0') << setw(2) << hex << (int)CntByte;
+    stringstream FormatStream;
+    FormatStream << setiosflags(ios::uppercase) << setfill('0') << setw(2) << hex << (int)CntByte;
     string RetVal = "";
-    BinStream >> RetVal;
+    FormatStream >> RetVal;
     return RetVal;
 }
 
@@ -590,7 +603,7 @@ string DASM::FormatAsmDWord(DWORD CntDWord)
     return RetVal;
 }
 
-string DASM::ParseMemoryOperand(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode, BYTE MODRM)
+string DASM::ParseMemoryOperand(BYTE Opcode, BYTE MODRM)
 {
     BYTE MOD = 0, RM = 0;
     BYTE Base = 0, Index = 0, Scale = 0, SIB = 0;
@@ -601,11 +614,11 @@ string DASM::ParseMemoryOperand(ifstream &ExeFile, stringstream &BinStream, BYTE
     switch (this->GetAddressMode()) {
         case ADDRESS_MODE_16: // 16 Bits Addressing
             Operand += "[";
-            Operand += (MOD == MOD_M_NO_DISPLACEMENT && RM == RM_ONLY_DISPLACEMENT_16_FLAG) ? "small " + this->ParseDisplacement(ExeFile, BinStream, MOD) : InstructionDef::GetReg(ADDRESSSIZE_16)[RM];
+            Operand += (MOD == MOD_M_NO_DISPLACEMENT && RM == RM_ONLY_DISPLACEMENT_16_FLAG) ? "small " + this->ParseDisplacement(MOD) : InstructionDef::GetReg(ADDRESSSIZE_16)[RM];
             switch (MOD) {
                 case MOD_M_DISPLACEMENT_8:
                 case MOD_M_DISPLACEMENT_16_32:
-                    Operand += " + " + this->ParseDisplacement(ExeFile, BinStream, MOD);
+                    Operand += " + " + this->ParseDisplacement(MOD);
                     break;
                 default:
                     break;
@@ -615,19 +628,18 @@ string DASM::ParseMemoryOperand(ifstream &ExeFile, stringstream &BinStream, BYTE
         case ADDRESS_MODE_32: // 32 Bits Addressing
             if (MOD == MOD_M_NO_DISPLACEMENT && RM == RM_ONLY_DISPLACEMENT_32_FLAG)
             {
-                Operand += "[" + this->ParseImmediateOperand_I32(ExeFile, BinStream) + "]";
+                Operand += "[" + this->ParseImmediateOperand_I32() + "]";
                 break;
             }
             switch (RM)
             {
                 case RM_SIB_FLAG: // Use SIB Memory Addressing
-                    SIB = this->ReadByte(ExeFile);
+                    SIB = this->ReadByte();
                     Scale = GET_SCALE(SIB);
                     Index = GET_INDEX(SIB);
                     Base = GET_BASE(SIB);
-                    BinStream << this->FormatByte(SIB) << " ";
                     Operand += "[";
-                    Operand += Base == RM_ONLY_DISPLACEMENT_16_FLAG ? this->ParseDisplacement(ExeFile, BinStream, MOD) : InstructionDef::GetReg(REGSIZE_32)[Base];
+                    Operand += Base == RM_ONLY_DISPLACEMENT_16_FLAG ? this->ParseDisplacement(MOD) : InstructionDef::GetReg(REGSIZE_32)[Base];
                     if (Index != RM_SIB_FLAG)
                     {
                         Operand += " + " + InstructionDef::GetReg(REGSIZE_32)[Index];
@@ -639,7 +651,7 @@ string DASM::ParseMemoryOperand(ifstream &ExeFile, stringstream &BinStream, BYTE
                     switch (MOD) {
                         case MOD_M_DISPLACEMENT_8:
                         case MOD_M_DISPLACEMENT_16_32:
-                            Operand += " + " + this->ParseDisplacement(ExeFile, BinStream, MOD);
+                            Operand += " + " + this->ParseDisplacement(MOD);
                             break;
                         default:
                             break;
@@ -651,7 +663,7 @@ string DASM::ParseMemoryOperand(ifstream &ExeFile, stringstream &BinStream, BYTE
                     switch (MOD) {
                         case MOD_M_DISPLACEMENT_8:
                         case MOD_M_DISPLACEMENT_16_32:
-                            Operand += " + " + this->ParseDisplacement(ExeFile, BinStream, MOD);
+                            Operand += " + " + this->ParseDisplacement(MOD);
                             break;
                         default:
                             break;
@@ -671,12 +683,12 @@ string DASM::ParseRegisterOperand(BYTE Opcode, BYTE REG)
     return GET_W_BIT(Opcode) == 0x00 ? InstructionDef::GetReg(REGSIZE_8)[REG] : InstructionDef::GetReg(this->GetCPUMode())[REG];
 }
 
-string DASM::ParseDisplacement(ifstream &ExeFile, stringstream &BinStream, BYTE MOD)
+string DASM::ParseDisplacement(BYTE MOD)
 {
-    return MOD == MOD_M_DISPLACEMENT_8 ? this->ParseImmediateOperand_I8(ExeFile, BinStream) : (this->GetAddressMode() == ADDRESS_MODE_16 ? this->ParseImmediateOperand_I16(ExeFile, BinStream) : this->ParseImmediateOperand_I32(ExeFile, BinStream));
+    return MOD == MOD_M_DISPLACEMENT_8 ? this->ParseImmediateOperand_I8() : (this->GetAddressMode() == ADDRESS_MODE_16 ? this->ParseImmediateOperand_I16() : this->ParseImmediateOperand_I32());
 }
 
-string DASM::ParseImmediateOperand(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode)
+string DASM::ParseImmediateOperand(BYTE Opcode)
 {
     // TODO
     //if (GET_S_BIT(Opcode) == 0x00)
@@ -687,53 +699,50 @@ string DASM::ParseImmediateOperand(ifstream &ExeFile, stringstream &BinStream, B
     //{
     //AsmStream << Operand[1];
     //}
-    return GET_W_BIT(Opcode) == 0x00 ? this->ParseImmediateOperand_I8(ExeFile, BinStream) : this->ParseImmediateOperand_I16_I32(ExeFile, BinStream);
+    return GET_W_BIT(Opcode) == 0x00 ? this->ParseImmediateOperand_I8() : this->ParseImmediateOperand_I16_I32();
 }
 
-string DASM::ParseImmediateOperand_I8(ifstream &ExeFile, stringstream &BinStream)
+string DASM::ParseImmediateOperand_I8()
 {
-    BYTE I8 = this->ReadByte(ExeFile);
-    BinStream << this->FormatByte(I8) << " ";
+    BYTE I8 = this->ReadByte();
     return this->FormatByte(I8) + "h";
 }
 
-string DASM::ParseImmediateOperand_I16(ifstream &ExeFile, stringstream &BinStream)
+string DASM::ParseImmediateOperand_I16()
 {
-    WORD I16 = this->ReadWord(ExeFile);
-    BinStream << this->FormatBinWord(I16) << " ";
+    WORD I16 = this->ReadWord();
     return this->FormatAsmWord(I16) + "h";
 }
 
-string DASM::ParseImmediateOperand_I32(ifstream &ExeFile, stringstream &BinStream)
+string DASM::ParseImmediateOperand_I32()
 {
-    DWORD I32 = this->ReadDWord(ExeFile);
-    BinStream << this->FormatBinDWord(I32) << " ";
+    DWORD I32 = this->ReadDWord();
     return this->FormatAsmDWord(I32) + "h";
 }
 
-string DASM::ParseImmediateOperand_I16_I32(ifstream &ExeFile, stringstream &BinStream)
+string DASM::ParseImmediateOperand_I16_I32()
 {
-    return this->GetCPUMode() == CPU_MODE_16 ? this->ParseImmediateOperand_I16(ExeFile, BinStream) : this->ParseImmediateOperand_I32(ExeFile, BinStream);
+    return this->GetCPUMode() == CPU_MODE_16 ? this->ParseImmediateOperand_I16() : this->ParseImmediateOperand_I32();
 }
 
-string DASM::ParseMODRM_RM(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode, BYTE MODRM)
+string DASM::ParseMODRM_RM(BYTE Opcode, BYTE MODRM)
 {
-    return GET_MOD(MODRM) == MOD_R_NO_DISPLACEMENT ? this->ParseRegisterOperand(Opcode, GET_RM(MODRM)) : this->ParseMemoryOperand(ExeFile, BinStream, Opcode, MODRM);
+    return GET_MOD(MODRM) == MOD_R_NO_DISPLACEMENT ? this->ParseRegisterOperand(Opcode, GET_RM(MODRM)) : this->ParseMemoryOperand(Opcode, MODRM);
 }
 
-string DASM::ParseMODRM_RM_RM(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode, BYTE MODRM)
+string DASM::ParseMODRM_RM_RM(BYTE Opcode, BYTE MODRM)
 {
     string Operand[2];
-    Operand[0] = this->ParseMODRM_RM(ExeFile, BinStream, Opcode, MODRM);
+    Operand[0] = this->ParseMODRM_RM(Opcode, MODRM);
     Operand[1] = this->ParseRegisterOperand(Opcode, GET_REG(MODRM));
     return GET_D_BIT(Opcode) == 0x00 ? Operand[0] + ", " + Operand[1] : Operand[1] + ", " + Operand[0];
 }
 
-string DASM::ParseMODRM_RM_IMM(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode, BYTE MODRM)
+string DASM::ParseMODRM_RM_IMM(BYTE Opcode, BYTE MODRM)
 {
     string Operand[2];
-    Operand[0] = this->ParseMODRM_RM(ExeFile, BinStream, Opcode, MODRM);
-    Operand[1] = this->ParseImmediateOperand(ExeFile, BinStream, Opcode);
+    Operand[0] = this->ParseMODRM_RM(Opcode, MODRM);
+    Operand[1] = this->ParseImmediateOperand(Opcode);
     // TODO  S-BIT
     return GET_S_BIT(Opcode) == 0x00 ? Operand[0] + ", " + Operand[1] : Operand[0] + ", " + Operand[1];
 }
