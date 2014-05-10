@@ -71,8 +71,15 @@ public:
     string FormatAsmWord(WORD CntWord);
     string FormatBinDWord(DWORD CntDWord);
     string FormatAsmDWord(DWORD CntDWord);
-    void ProcessMODRM(ifstream &ExeFile, stringstream &BinStream, stringstream &AsmStream, BYTE Opcode);
-    void ProcessMODRM_RAX_I16(ifstream &ExeFile, stringstream &BinStream, stringstream &AsmStream, BYTE Opcode);
+    string ParseMemoryOperand(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode, BYTE MODRM);
+    string ParseRegisterOperand(BYTE Opcode, BYTE REG);
+    string ParseImmediateOperand(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode);
+    string ParseImmediateOperand_I8(ifstream &ExeFile, stringstream &BinStream);
+    string ParseImmediateOperand_I16(ifstream &ExeFile, stringstream &BinStream);
+    string ParseImmediateOperand_I32(ifstream &ExeFile, stringstream &BinStream);
+    string ParseImmediateOperand_I16_I32(ifstream &ExeFile, stringstream &BinStream);
+    string ParseDisplacement(ifstream &ExeFile, stringstream &BinStream, BYTE MOD);
+    string ParseMODRM_RM_RM(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode);
     void StringStreamClear(stringstream &SStream);
 };
 

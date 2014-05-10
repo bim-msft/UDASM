@@ -243,8 +243,6 @@ void DASM::INTEL_X86_Exec(string FileName)
             PrefixPos[3] = ExeFile.tellg();
             continue;
         }
-        WORD I16;
-        DWORD I32;
         switch (CntByte) {
             case OPCODE_ADD + RM8_R8:
             case OPCODE_ADD + RM16_R16:
@@ -306,11 +304,12 @@ void DASM::INTEL_X86_Exec(string FileName)
                     case RM16_R16:
                     case R8_RM8:
                     case R16_RM16:
-                        this->ProcessMODRM(ExeFile, BinStream, AsmStream, CntByte);
+                        AsmStream << this->ParseMODRM_RM_RM(ExeFile, BinStream, CntByte);
                         break;
                     case AL_I8:
                     case RAX_I16:
-                        this->ProcessMODRM_RAX_I16(ExeFile, BinStream, AsmStream, CntByte);
+                        AsmStream << this->ParseRegisterOperand(CntByte, REG_EAX_32) << ", ";
+                        AsmStream << this->ParseImmediateOperand(ExeFile, BinStream, CntByte);
                         break;
                     default:
                         AsmStream << "??? ";
@@ -374,20 +373,7 @@ void DASM::INTEL_X86_Exec(string FileName)
                 break;
             case OPCODE_PUSH_I16_I32:
                 AsmStream << InstructionDef::GetOpcode()[CntByte] << " ";
-                switch (this->GetCPUMode()) {
-                    case CPU_MODE_16:
-                        I16 = this->ReadWord(ExeFile);
-                        BinStream << this->FormatBinWord(I16) << " ";
-                        AsmStream << "word " << this->FormatAsmWord(I16) << "h";
-                        break;
-                    case CPU_MODE_32:
-                        I32 = this->ReadDWord(ExeFile);
-                        BinStream << this->FormatBinDWord(I32) << " ";
-                        AsmStream << this->FormatAsmDWord(I32) << "h";
-                        break;
-                    default:
-                        break;
-                }
+                AsmStream << this->ParseImmediateOperand_I16_I32(ExeFile, BinStream);
                 break;
             case OPCODE_DAA:
             case OPCODE_DAS:
@@ -586,231 +572,140 @@ string DASM::FormatAsmDWord(DWORD CntDWord)
     return RetVal;
 }
 
-void DASM::ProcessMODRM(ifstream &ExeFile, stringstream &BinStream, stringstream &AsmStream, BYTE Opcode)
+string DASM::ParseMemoryOperand(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode, BYTE MODRM)
 {
-    BYTE DISP8 = 0, I8 = 0;
-    BYTE MOD = 0, REG = 0, RM = 0, MODRM = 0;
+    BYTE MOD = 0, RM = 0;
     BYTE Base = 0, Index = 0, Scale = 0, SIB = 0;
-    WORD I16 = 0, DISP16 = 0;
-    DWORD I32 = 0, DISP32 = 0;
-    string Operand[2];
-    MODRM = this->ReadByte(ExeFile);
-    BinStream << this->FormatByte(MODRM) << " ";
+    string Operand;
     MOD = GET_MOD(MODRM);
-    REG = GET_REG(MODRM);
     RM = GET_RM(MODRM);
-    if (MOD == MOD_R_NO_DISPLACEMENT) // Register Addressing
-    {
-        if (GET_W_BIT(Opcode) == 0x00)
-        {
-            Operand[0] += InstructionDef::GetReg(REGSIZE_8)[RM];
-            Operand[1] += InstructionDef::GetReg(REGSIZE_8)[REG];
-        }
-        else
-        {
-            Operand[0] += InstructionDef::GetReg(this->GetCPUMode())[RM];
-            Operand[1] += InstructionDef::GetReg(this->GetCPUMode())[REG];
-        }
-    }
-    else // Memory Address
-    {
-        // Construct the Memory Operand
-        if (GET_W_BIT(Opcode) == 0x00)
-        {
-            Operand[0] += InstructionDef::GetAddressHead()[ADDRESSHEAD_8] + " ";
-        }
-        else
-        {
-            Operand[0] += InstructionDef::GetAddressHead()[this->GetCPUMode()] + " ";
-        }
-        switch (this->GetAddressMode()) {
-            case ADDRESS_MODE_16: // 16 Bits Addressing
-                Operand[0] += "[";
-                if (MOD == MOD_M_NO_DISPLACEMENT && RM == RM_ONLY_DISPLACEMENT_16_FLAG)
-                {
-                    I16 = this->ReadWord(ExeFile);
-                    BinStream << this->FormatBinWord(I16) << " ";
-                    Operand[0] += "small " + this->FormatAsmWord(I16) + "h";
-                }
-                else
-                {
-                    Operand[0] += InstructionDef::GetReg(ADDRESSSIZE_16)[RM];
-                }
-                switch (MOD) {
-                    case MOD_M_DISPLACEMENT_8:
-                        DISP8 = this->ReadByte(ExeFile);
-                        BinStream << this->FormatByte(DISP8) << " ";
-                        Operand[0] += " + " + this->FormatByte(DISP8) + "h";
-                        break;
-                    case MOD_M_DISPLACEMENT_16_32:
-                        DISP16 = this->ReadWord(ExeFile);
-                        BinStream << this->FormatBinWord(DISP16) << " ";
-                        Operand[0] += " + " + this->FormatAsmWord(DISP16) + "h";
-                        break;
-                    default:
-                        break;
-                }
-                Operand[0] += "]";
-                if (GET_W_BIT(Opcode) == 0x00)
-                {
-                    Operand[1] += InstructionDef::GetReg(REGSIZE_8)[REG];
-                }
-                else
-                {
-                    Operand[1] += InstructionDef::GetReg(this->GetCPUMode())[REG];
-                }
+    Operand += (GET_W_BIT(Opcode) == 0x00 ? InstructionDef::GetAddressHead()[ADDRESSHEAD_8] : InstructionDef::GetAddressHead()[this->GetCPUMode()]) + " ";
+    switch (this->GetAddressMode()) {
+        case ADDRESS_MODE_16: // 16 Bits Addressing
+            Operand += "[";
+            Operand += (MOD == MOD_M_NO_DISPLACEMENT && RM == RM_ONLY_DISPLACEMENT_16_FLAG) ? "small " + this->ParseDisplacement(ExeFile, BinStream, MOD) : InstructionDef::GetReg(ADDRESSSIZE_16)[RM];
+            switch (MOD) {
+                case MOD_M_DISPLACEMENT_8:
+                case MOD_M_DISPLACEMENT_16_32:
+                    Operand += " + " + this->ParseDisplacement(ExeFile, BinStream, MOD);
+                    break;
+                default:
+                    break;
+            }
+            Operand += "]";
+            break;
+        case ADDRESS_MODE_32: // 32 Bits Addressing
+            if (MOD == MOD_M_NO_DISPLACEMENT && RM == RM_ONLY_DISPLACEMENT_32_FLAG)
+            {
+                Operand += "[" + this->ParseImmediateOperand_I32(ExeFile, BinStream) + "]";
                 break;
-            case ADDRESS_MODE_32: // 32 Bits Addressing
-                if (MOD == MOD_M_NO_DISPLACEMENT && RM == RM_ONLY_DISPLACEMENT_32_FLAG)
-                {
-                    I32 = this->ReadDWord(ExeFile);
-                    BinStream << this->FormatBinDWord(I32) << " ";
-                    Operand[0] += "[" + this->FormatAsmDWord(I32) + "h]";
-                    if (GET_W_BIT(Opcode) == 0x00)
+            }
+            switch (RM)
+            {
+                case RM_SIB_FLAG: // Use SIB Memory Addressing
+                    SIB = this->ReadByte(ExeFile);
+                    Scale = GET_SCALE(SIB);
+                    Index = GET_INDEX(SIB);
+                    Base = GET_BASE(SIB);
+                    BinStream << this->FormatByte(SIB) << " ";
+                    Operand += "[";
+                    Operand += Base == RM_ONLY_DISPLACEMENT_16_FLAG ? this->ParseDisplacement(ExeFile, BinStream, MOD) : InstructionDef::GetReg(REGSIZE_32)[Base];
+                    if (Index != RM_SIB_FLAG)
                     {
-                        Operand[1] += InstructionDef::GetReg(REGSIZE_8)[REG];
+                        Operand += " + " + InstructionDef::GetReg(REGSIZE_32)[Index];
+                        if (Scale != 0)
+                        {
+                            Operand += " * " + string(1, BYTE(1 << Scale) + '0');
+                        }
                     }
-                    else
-                    {
-                        Operand[1] += InstructionDef::GetReg(this->GetCPUMode())[REG];
+                    switch (MOD) {
+                        case MOD_M_DISPLACEMENT_8:
+                        case MOD_M_DISPLACEMENT_16_32:
+                            Operand += " + " + this->ParseDisplacement(ExeFile, BinStream, MOD);
+                            break;
+                        default:
+                            break;
                     }
-                
+                    Operand += "]";
+                    break;
+                default: // Use Non-SIB Memory Addressing
+                    Operand += "[" + InstructionDef::GetReg(REGSIZE_32)[RM];
+                    switch (MOD) {
+                        case MOD_M_DISPLACEMENT_8:
+                        case MOD_M_DISPLACEMENT_16_32:
+                            Operand += " + " + this->ParseDisplacement(ExeFile, BinStream, MOD);
+                            break;
+                        default:
+                            break;
+                    }
+                    Operand += "]";
                     break;
                 }
-                switch (RM)
-                {
-                    case RM_SIB_FLAG: // Use SIB Memory Addressing
-                        SIB = this->ReadByte(ExeFile);
-                        Scale = GET_SCALE(SIB);
-                        Index = GET_INDEX(SIB);
-                        Base = GET_BASE(SIB);
-                        BinStream << this->FormatByte(SIB) << " ";
-                        if (Base == RM_ONLY_DISPLACEMENT_16_FLAG)
-                        {
-                            DISP32 = this->ReadDWord(ExeFile);
-                            BinStream << this->FormatBinDWord(DISP32) << " ";
-                            Operand[0] += "[" + this->FormatAsmDWord(DISP32) + "h";
-                        }
-                        else
-                        {
-                            Operand[0] += "[" + InstructionDef::GetReg(REGSIZE_32)[Base];
-                        }
-                        if (Index != RM_SIB_FLAG)
-                        {
-                            Operand[0] += " + " + InstructionDef::GetReg(REGSIZE_32)[Index];
-                            if (Scale != 0)
-                            {
-                                Operand[0] += " * " + string(1, BYTE(1 << Scale) + '0');
-                            }
-                        }
-                        switch (MOD)
-                        {
-                            case MOD_M_DISPLACEMENT_8:
-                                DISP8 = this->ReadByte(ExeFile);
-                                BinStream << this->FormatByte(DISP8) << " ";
-                                Operand[0] += " + " + this->FormatByte(DISP8) + "h";
-                                break;
-                            case MOD_M_DISPLACEMENT_16_32:
-                                DISP32 = this->ReadDWord(ExeFile);
-                                BinStream << this->FormatBinDWord(DISP32) << " ";
-                                Operand[0] += " + " + this->FormatAsmDWord(DISP32) + "h";
-                                break;
-                            default:
-                                break;
-                        }
-                        Operand[0] += "]";
-                        if (GET_W_BIT(Opcode) == 0x00)
-                        {
-                            Operand[1] += InstructionDef::GetReg(REGSIZE_8)[REG];
-                        }
-                        else
-                        {
-                            Operand[1] += InstructionDef::GetReg(this->GetCPUMode())[REG];
-                        }
-                        break;
-                    default: // Use Non-SIB Memory Addressing
-                        Operand[0] += "[" + InstructionDef::GetReg(REGSIZE_32)[RM];
-                        switch (MOD) {
-                            case MOD_M_DISPLACEMENT_8:
-                                I8 = this->ReadByte(ExeFile);
-                                BinStream << this->FormatByte(I8) << " ";
-                                Operand[0] += " + " + this->FormatByte(I8) + "h";
-                                break;
-                            case MOD_M_DISPLACEMENT_16_32:
-                                I32 = this->ReadDWord(ExeFile);
-                                BinStream << this->FormatBinDWord(I32) << " ";
-                                Operand[0] += " + " + this->FormatAsmDWord(I32) + "h";
-                            default:
-                                break;
-                        }
-                        Operand[0] += "]";
-                        if (GET_W_BIT(Opcode) == 0x00)
-                        {
-                            Operand[1] += InstructionDef::GetReg(REGSIZE_8)[REG];
-                        }
-                        else
-                        {
-                            Operand[1] += InstructionDef::GetReg(this->GetCPUMode())[REG];
-                        }
-                        break;
-                }
-                break;
-            default:
-                break;
-        }
+            break;
+        default:
+            break;
     }
-    if (GET_D_BIT(Opcode) == 0x00) // Judge Operands Order
-    {
-        AsmStream << Operand[0] << ", " << Operand[1];
-    }
-    else
-    {
-        AsmStream << Operand[1] << ", " << Operand[0];
-    }
+    return Operand;
 }
 
-void DASM::ProcessMODRM_RAX_I16(ifstream &ExeFile, stringstream &BinStream, stringstream &AsmStream, BYTE Opcode)
+string DASM::ParseRegisterOperand(BYTE Opcode, BYTE REG)
 {
-    BYTE DISP8, I8, R8, RM8, R16, RM16, R32, RM32;
-    BYTE MOD, RM, MODRM;
-    BYTE Base, Index, Scale, SIB;
-    WORD I16, DISP16;
-    DWORD I32, DISP32;
+    return GET_W_BIT(Opcode) == 0x00 ? InstructionDef::GetReg(REGSIZE_8)[REG] : InstructionDef::GetReg(this->GetCPUMode())[REG];
+}
+
+string DASM::ParseDisplacement(ifstream &ExeFile, stringstream &BinStream, BYTE MOD)
+{
+    return MOD == MOD_M_DISPLACEMENT_8 ? this->ParseImmediateOperand_I8(ExeFile, BinStream) : (this->GetAddressMode() == ADDRESS_MODE_16 ? this->ParseImmediateOperand_I16(ExeFile, BinStream) : this->ParseImmediateOperand_I32(ExeFile, BinStream));
+}
+
+string DASM::ParseImmediateOperand(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode)
+{
+    // TODO
+    //if (GET_S_BIT(Opcode) == 0x00)
+    //{
+    //AsmStream << Operand[1];
+    //}
+    //else
+    //{
+    //AsmStream << Operand[1];
+    //}
+    return GET_W_BIT(Opcode) == 0x00 ? this->ParseImmediateOperand_I8(ExeFile, BinStream) : this->ParseImmediateOperand_I16_I32(ExeFile, BinStream);
+}
+
+string DASM::ParseImmediateOperand_I8(ifstream &ExeFile, stringstream &BinStream)
+{
+    BYTE I8 = this->ReadByte(ExeFile);
+    BinStream << this->FormatByte(I8) << " ";
+    return this->FormatByte(I8) + "h";
+}
+
+string DASM::ParseImmediateOperand_I16(ifstream &ExeFile, stringstream &BinStream)
+{
+    WORD I16 = this->ReadWord(ExeFile);
+    BinStream << this->FormatBinWord(I16) << " ";
+    return this->FormatAsmWord(I16) + "h";
+}
+
+string DASM::ParseImmediateOperand_I32(ifstream &ExeFile, stringstream &BinStream)
+{
+    DWORD I32 = this->ReadDWord(ExeFile);
+    BinStream << this->FormatBinDWord(I32) << " ";
+    return this->FormatAsmDWord(I32) + "h";
+}
+
+string DASM::ParseImmediateOperand_I16_I32(ifstream &ExeFile, stringstream &BinStream)
+{
+    return this->GetCPUMode() == CPU_MODE_16 ? this->ParseImmediateOperand_I16(ExeFile, BinStream) : this->ParseImmediateOperand_I32(ExeFile, BinStream);
+}
+
+string DASM::ParseMODRM_RM_RM(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode)
+{
     string Operand[2];
-    if (GET_W_BIT(Opcode) == 0x00)
-    {
-        Operand[0] += InstructionDef::GetReg(REGSIZE_8)[REG_AL_8];
-        I8 = this->ReadByte(ExeFile);
-        BinStream << this->FormatByte(I8) << " ";
-        Operand[1] += this->FormatByte(I8) + "h";
-    }
-    else
-    {
-        Operand[0] += InstructionDef::GetReg(this->GetCPUMode())[REG_AX_16];
-        switch (this->GetCPUMode()) {
-            case CPU_MODE_16:
-                I16 = this->ReadWord(ExeFile);
-                BinStream << this->FormatBinWord(I16) << " ";
-                Operand[1] += this->FormatAsmWord(I16) + "h";
-                break;
-            case CPU_MODE_32:
-                I32 = this->ReadDWord(ExeFile);
-                BinStream << this->FormatBinDWord(I32) << " ";
-                Operand[1] += this->FormatAsmDWord(I32) + "h";
-                break;
-            default:
-                break;
-        }
-    }
-    AsmStream << Operand[0] << ", ";
-    if (GET_S_BIT(Opcode) == 0x00)
-    {
-        AsmStream << Operand[1];
-    }
-    else
-    {
-        AsmStream << Operand[1];
-    }
+    BYTE MODRM = this->ReadByte(ExeFile);
+    BinStream << this->FormatByte(MODRM) << " ";
+    Operand[0] = GET_MOD(MODRM) == MOD_R_NO_DISPLACEMENT ? this->ParseRegisterOperand(Opcode, GET_RM(MODRM)) : this->ParseMemoryOperand(ExeFile, BinStream, Opcode, MODRM);
+    Operand[1] = this->ParseRegisterOperand(Opcode, GET_REG(MODRM));
+    return GET_D_BIT(Opcode) == 0x00 ? Operand[0] + ", " + Operand[1] : Operand[1] + ", " + Operand[0];
 }
 
 void DASM::StringStreamClear(stringstream &SStream)
