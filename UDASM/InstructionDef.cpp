@@ -93,6 +93,20 @@ map<BYTE, string> InstructionDef::InitOpcode()
     return RetVal;
 }
 
+map<BYTE, string> InstructionDef::InitSubOpcode_TestGroup()
+{
+    map<BYTE, string> RetVal;
+    RetVal[SUB_OPCODE_TEST_0] = "test";
+    RetVal[SUB_OPCODE_TEST_1] = "test";
+    RetVal[SUB_OPCODE_NOT] = "not";
+    RetVal[SUB_OPCODE_NEG] = "neg";
+    RetVal[SUB_OPCODE_MUL] = "mul";
+    RetVal[SUB_OPCODE_IMUL] = "imul";
+    RetVal[SUB_OPCODE_DIV] = "div";
+    RetVal[SUB_OPCODE_IDIV] = "idiv";
+    return RetVal;
+}
+
 map<BYTE, string> InstructionDef::InitReg(BYTE GroupID)
 {
     map<BYTE, string> RetVal;
@@ -176,6 +190,11 @@ map<BYTE, string>& InstructionDef::GetOpcode()
     return InstructionDef::Opcode;
 }
 
+map<BYTE, string>& InstructionDef::GetSubOpcode_TestGroup()
+{
+    return InstructionDef::SubOpcode_TestGroup;
+}
+
 map<BYTE, string>& InstructionDef::GetReg(BYTE GroupID)
 {
     return InstructionDef::Reg[GroupID];
@@ -189,6 +208,7 @@ map<BYTE, string>& InstructionDef::GetAddressHead()
 map<BYTE, string> InstructionDef::Prefix[4];
 map<BYTE, string> InstructionDef::SinglePrefixName;
 map<BYTE, string> InstructionDef::Opcode;
+map<BYTE, string> InstructionDef::SubOpcode_TestGroup;
 map<BYTE, string> InstructionDef::Reg[5];
 map<BYTE, string> InstructionDef::AddressHead;
 

@@ -62,6 +62,15 @@
 #define OPCODE_PUSH_I16_I32          0x68 // 0x68
 #define OPCODE_MOV                   0x88 // 0x88 ~ 0x8D (+RM)
 #define OPCODE_NOP                   0x90 // 0x90
+#define OPCODE_TEST_GROUP            0xF6 // 0xF6 ~ 0xF7 (+RM 2)
+#define SUB_OPCODE_TEST_0            0x00 // [TEST GROUP]
+#define SUB_OPCODE_TEST_1            0x01 // [TEST GROUP]
+#define SUB_OPCODE_NOT               0x02 // [TEST GROUP]
+#define SUB_OPCODE_NEG               0x03 // [TEST GROUP]
+#define SUB_OPCODE_MUL               0x04 // [TEST GROUP]
+#define SUB_OPCODE_IMUL              0x05 // [TEST GROUP]
+#define SUB_OPCODE_DIV               0x06 // [TEST GROUP]
+#define SUB_OPCODE_IDIV              0x07 // [TEST GROUP]
 // Mode in Opcode Byte (RM)
 #define RM8_R8                       0x00
 #define RM16_R16                     0x01
@@ -154,17 +163,20 @@ private:
     static map<BYTE, string> Prefix[4];
     static map<BYTE, string> SinglePrefixName;
     static map<BYTE, string> Opcode;
+    static map<BYTE, string> SubOpcode_TestGroup;
     static map<BYTE, string> Reg[5];
     static map<BYTE, string> AddressHead;
 public:
     static map<BYTE, string> InitPrefix(BYTE GroupID);
     static map<BYTE, string> InitSinglePrefixName();
     static map<BYTE, string> InitOpcode();
+    static map<BYTE, string> InitSubOpcode_TestGroup();
     static map<BYTE, string> InitReg(BYTE GroupID);
     static map<BYTE, string> InitAddressHead();
     static map<BYTE, string>& GetPrefix(BYTE GroupID);
     static map<BYTE, string>& GetSinglePrefixName();
     static map<BYTE, string>& GetOpcode();
+    static map<BYTE, string>& GetSubOpcode_TestGroup();
     static map<BYTE, string>& GetReg(BYTE GroupID);
     static map<BYTE, string>& GetAddressHead();
 };

@@ -79,7 +79,9 @@ public:
     string ParseImmediateOperand_I32(ifstream &ExeFile, stringstream &BinStream);
     string ParseImmediateOperand_I16_I32(ifstream &ExeFile, stringstream &BinStream);
     string ParseDisplacement(ifstream &ExeFile, stringstream &BinStream, BYTE MOD);
-    string ParseMODRM_RM_RM(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode);
+    string ParseMODRM_RM(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode, BYTE MODRM);
+    string ParseMODRM_RM_RM(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode, BYTE MODRM);
+    string ParseMODRM_RM_IMM(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode, BYTE MODRM);
     void StringStreamClear(stringstream &SStream);
 };
 

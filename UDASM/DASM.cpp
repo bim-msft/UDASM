@@ -52,6 +52,7 @@ void DASM::INTEL_X86_Init()
     }
     InstructionDef::GetSinglePrefixName() = InstructionDef::InitSinglePrefixName();
     InstructionDef::GetOpcode() = InstructionDef::InitOpcode();
+    InstructionDef::GetSubOpcode_TestGroup() = InstructionDef::InitSubOpcode_TestGroup();
     InstructionDef::GetReg(REGSIZE_8) = InstructionDef::InitReg(REGSIZE_8);
     InstructionDef::GetReg(REGSIZE_16) = InstructionDef::InitReg(REGSIZE_16);
     InstructionDef::GetReg(REGSIZE_32) = InstructionDef::InitReg(REGSIZE_32);
@@ -243,6 +244,7 @@ void DASM::INTEL_X86_Exec(string FileName)
             PrefixPos[3] = ExeFile.tellg();
             continue;
         }
+        BYTE MODRM;
         switch (CntByte) {
             case OPCODE_ADD + RM8_R8:
             case OPCODE_ADD + RM16_R16:
@@ -304,7 +306,9 @@ void DASM::INTEL_X86_Exec(string FileName)
                     case RM16_R16:
                     case R8_RM8:
                     case R16_RM16:
-                        AsmStream << this->ParseMODRM_RM_RM(ExeFile, BinStream, CntByte);
+                        MODRM = this->ReadByte(ExeFile);
+                        BinStream << this->FormatByte(MODRM) << " ";
+                        AsmStream << this->ParseMODRM_RM_RM(ExeFile, BinStream, CntByte, MODRM);
                         break;
                     case AL_I8:
                     case RAX_I16:
@@ -375,6 +379,21 @@ void DASM::INTEL_X86_Exec(string FileName)
                 AsmStream << InstructionDef::GetOpcode()[CntByte] << " ";
                 AsmStream << this->ParseImmediateOperand_I16_I32(ExeFile, BinStream);
                 break;
+            case OPCODE_TEST_GROUP + RM8_R8:
+            case OPCODE_TEST_GROUP + RM16_R16:
+                MODRM = this->ReadByte(ExeFile);
+                BinStream << this->FormatByte(MODRM) << " ";
+                AsmStream << InstructionDef::GetSubOpcode_TestGroup()[GET_OPCODE2(MODRM)] << " ";
+                switch (GET_OPCODE2(MODRM)) {
+                    case SUB_OPCODE_TEST_0:
+                    case SUB_OPCODE_TEST_1:
+                        AsmStream << this->ParseMODRM_RM_IMM(ExeFile, BinStream, CntByte, MODRM);
+                        break;
+                    default:
+                        AsmStream << this->ParseMODRM_RM(ExeFile, BinStream, CntByte, MODRM);
+                        break;
+                }
+                break;
             case OPCODE_DAA:
             case OPCODE_DAS:
             case OPCODE_AAA:
@@ -386,7 +405,6 @@ void DASM::INTEL_X86_Exec(string FileName)
                 AsmStream << "??? ";
                 break;
         }
-    
         //
         CntInstruction->Clear();
         Line++;
@@ -698,14 +716,26 @@ string DASM::ParseImmediateOperand_I16_I32(ifstream &ExeFile, stringstream &BinS
     return this->GetCPUMode() == CPU_MODE_16 ? this->ParseImmediateOperand_I16(ExeFile, BinStream) : this->ParseImmediateOperand_I32(ExeFile, BinStream);
 }
 
-string DASM::ParseMODRM_RM_RM(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode)
+string DASM::ParseMODRM_RM(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode, BYTE MODRM)
+{
+    return GET_MOD(MODRM) == MOD_R_NO_DISPLACEMENT ? this->ParseRegisterOperand(Opcode, GET_RM(MODRM)) : this->ParseMemoryOperand(ExeFile, BinStream, Opcode, MODRM);
+}
+
+string DASM::ParseMODRM_RM_RM(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode, BYTE MODRM)
 {
     string Operand[2];
-    BYTE MODRM = this->ReadByte(ExeFile);
-    BinStream << this->FormatByte(MODRM) << " ";
-    Operand[0] = GET_MOD(MODRM) == MOD_R_NO_DISPLACEMENT ? this->ParseRegisterOperand(Opcode, GET_RM(MODRM)) : this->ParseMemoryOperand(ExeFile, BinStream, Opcode, MODRM);
+    Operand[0] = this->ParseMODRM_RM(ExeFile, BinStream, Opcode, MODRM);
     Operand[1] = this->ParseRegisterOperand(Opcode, GET_REG(MODRM));
     return GET_D_BIT(Opcode) == 0x00 ? Operand[0] + ", " + Operand[1] : Operand[1] + ", " + Operand[0];
+}
+
+string DASM::ParseMODRM_RM_IMM(ifstream &ExeFile, stringstream &BinStream, BYTE Opcode, BYTE MODRM)
+{
+    string Operand[2];
+    Operand[0] = this->ParseMODRM_RM(ExeFile, BinStream, Opcode, MODRM);
+    Operand[1] = this->ParseImmediateOperand(ExeFile, BinStream, Opcode);
+    // TODO  S-BIT
+    return GET_S_BIT(Opcode) == 0x00 ? Operand[0] + ", " + Operand[1] : Operand[0] + ", " + Operand[1];
 }
 
 void DASM::StringStreamClear(stringstream &SStream)
