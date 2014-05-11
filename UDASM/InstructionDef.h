@@ -60,6 +60,11 @@
 #define OPCODE_PUSH                  0x50 // 0x50 ~ 0x57 (+REG)
 #define OPCODE_POP                   0x58 // 0x58 ~ 0x65 (+REG)
 #define OPCODE_PUSH_I16_I32          0x68 // 0x68
+#define OPCODE_IMUL_I16_I32_3OP      0x69 // 0x69
+#define OPCODE_PUSH_I8               0x6A // 0x6A
+#define OPCODE_IMUL_I8_3OP           0x6B // 0x6B
+#define OPCODE_INS                   0x6C // 0x6C ~ 0x6D (W Bit)
+#define OPCODE_OUTS                  0x6E // 0x6E ~ 0x6F (W Bit)
 #define OPCODE_MOV                   0x88 // 0x88 ~ 0x8D (+RM)
 #define OPCODE_NOP                   0x90 // 0x90
 #define OPCODE_TEST_GROUP            0xF6 // 0xF6 ~ 0xF7 (+RM 2)

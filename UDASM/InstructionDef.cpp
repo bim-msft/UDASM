@@ -85,10 +85,15 @@ map<BYTE, string> InstructionDef::InitOpcode()
     RetVal[OPCODE_AAS] = "aas";
     RetVal[OPCODE_INC] = "inc";
     RetVal[OPCODE_DEC] = "dec";
-    RetVal[OPCODE_MOV] = "mov";
     RetVal[OPCODE_PUSH] = "push";
     RetVal[OPCODE_POP] = "pop";
     RetVal[OPCODE_PUSH_I16_I32] = "push";
+    RetVal[OPCODE_IMUL_I16_I32_3OP] = "imul";
+    RetVal[OPCODE_PUSH_I8] = "push";
+    RetVal[OPCODE_IMUL_I8_3OP] = "imul";
+    RetVal[OPCODE_INS] = "ins";
+    RetVal[OPCODE_OUTS] = "outs";
+    RetVal[OPCODE_MOV] = "mov";
     RetVal[OPCODE_NOP] = "nop";
     return RetVal;
 }

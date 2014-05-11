@@ -44,11 +44,15 @@ private:
     ifstream ExeFile;
     stringstream AsmStream;
     stringstream BinStream;
+    DWORD LoadAddress;
+    DWORD OffsetAddress;
+    DWORD CntAddress;
 public:
-    DASM(string FileName, BYTE Arch, BYTE CPUMode, BYTE AddressMode, BYTE ByteOrder);
+    DASM(string FileName,  DWORD LoadAddress, DWORD OffsetAddress, BYTE Arch, BYTE CPUMode, BYTE AddressMode, BYTE ByteOrder);
     ~DASM();
     
-    void BaseInit(string FileName, BYTE CPUMode, BYTE AddressMode, BYTE ByteOrder);
+    void FileInit(string FileName, DWORD LoadAddress, DWORD OffsetAddress);
+    void BaseInit(BYTE CPUMode, BYTE AddressMode, BYTE ByteOrder);
     void ResetMode();
     void INTEL_X86_Init();
     void AT_AND_T_Init();
@@ -66,6 +70,13 @@ public:
     BYTE GetDefaultSegmentRegister();
     void SetDefaultByteOrder(BYTE DefaultByteOrder);
     BYTE GetDefaultByteOrder();
+    void SetLoadAddress(DWORD LoadAddress);
+    DWORD GetLoadAddress();
+    void SetOffsetAddress(DWORD OffsetAddress);
+    DWORD GetOffsetAddress();
+    void AddressInc(DWORD IncVal);
+    void SetCntAddress(DWORD CntAddress);
+    DWORD GetCntAddress();
     stringstream& GetAsmStream();
     stringstream& GetBinStream();
     ifstream& GetExeFile();
@@ -86,8 +97,9 @@ public:
     string ParseImmediateOperand_I16_I32();
     string ParseDisplacement(BYTE MOD);
     string ParseMODRM_RM(BYTE Opcode, BYTE MODRM);
-    string ParseMODRM_RM_RM(BYTE Opcode, BYTE MODRM);
+    string ParseMODRM_RM_R(BYTE Opcode, BYTE MODRM);
     string ParseMODRM_RM_IMM(BYTE Opcode, BYTE MODRM);
+    string ParseMODRM_R_RM_IMM(BYTE Opcode, BYTE MODRM);
     void StringStreamClear(stringstream &SStream);
 };
 
