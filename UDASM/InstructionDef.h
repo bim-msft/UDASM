@@ -35,38 +35,76 @@
 
 /* Opcode */
 // Opcode Byte
-#define OPCODE_ADD                   0x00 // 0x00 ~ 0x05 (+RM)
+#define OPCODE_ADD                   0x00 // 0x00 ~ 0x05 (+RM 5)
 #define OPCODE_PUSH_ES               0x06 // 0x06
 #define OPCODE_POP_ES                0x07 // 0x07
-#define OPCODE_OR                    0x08 // 0x08 ~ 0x0D (+RM)
+#define OPCODE_OR                    0x08 // 0x08 ~ 0x0D (+RM 5)
 #define OPCODE_PUSH_CS               0x0E // 0x0E
 #define OPCODE_POP_CS                0x0F // 0x0F
-#define OPCODE_ADC                   0x10 // 0x10 ~ 0x15 (+RM)
+#define OPCODE_ADC                   0x10 // 0x10 ~ 0x15 (+RM 5)
 #define OPCODE_PUSH_SS               0x16 // 0x16
 #define OPCODE_POP_SS                0x17 // 0x17
-#define OPCODE_SBB                   0x18 // 0x18 ~ 0x1D (+RM)
+#define OPCODE_SBB                   0x18 // 0x18 ~ 0x1D (+RM 5)
 #define OPCODE_PUSH_DS               0x1E // 0x1E
 #define OPCODE_POP_DS                0x1F // 0x1F
-#define OPCODE_AND                   0x20 // 0x20 ~ 0x25 (+RM)
+#define OPCODE_AND                   0x20 // 0x20 ~ 0x25 (+RM 5)
 #define OPCODE_DAA                   0x27 // 0x27
-#define OPCODE_SUB                   0x28 // 0x28 ~ 0x2D (+RM)
+#define OPCODE_SUB                   0x28 // 0x28 ~ 0x2D (+RM 5)
 #define OPCODE_DAS                   0x2F // 0x2F
-#define OPCODE_XOR                   0x30 // 0x30 ~ 0x35 (+RM)
+#define OPCODE_XOR                   0x30 // 0x30 ~ 0x35 (+RM 5)
 #define OPCODE_AAA                   0x37 // 0x37
-#define OPCODE_CMP                   0x38 // 0x38 ~ 0x3D (+RM)
+#define OPCODE_CMP                   0x38 // 0x38 ~ 0x3D (+RM 5)
 #define OPCODE_AAS                   0x3F // 0x3F
-#define OPCODE_INC                   0x40 // 0x40 ~ 0x47 (+REG)
-#define OPCODE_DEC                   0x48 // 0x48 ~ 0x4F (+REG)
-#define OPCODE_PUSH                  0x50 // 0x50 ~ 0x57 (+REG)
-#define OPCODE_POP                   0x58 // 0x58 ~ 0x65 (+REG)
+#define OPCODE_INC                   0x40 // 0x40 ~ 0x47 (+REG 8)
+#define OPCODE_DEC                   0x48 // 0x48 ~ 0x4F (+REG 8)
+#define OPCODE_PUSH                  0x50 // 0x50 ~ 0x57 (+REG 8)
+#define OPCODE_POP                   0x58 // 0x58 ~ 0x65 (+REG 8)
 #define OPCODE_PUSH_I16_I32          0x68 // 0x68
 #define OPCODE_IMUL_I16_I32_3OP      0x69 // 0x69
 #define OPCODE_PUSH_I8               0x6A // 0x6A
 #define OPCODE_IMUL_I8_3OP           0x6B // 0x6B
 #define OPCODE_INS                   0x6C // 0x6C ~ 0x6D (W Bit)
 #define OPCODE_OUTS                  0x6E // 0x6E ~ 0x6F (W Bit)
-#define OPCODE_MOV                   0x88 // 0x88 ~ 0x8D (+RM)
+#define OPCODE_JO                    0x70 // 0x70
+#define OPCODE_JNO                   0x71 // 0x71
+#define OPCODE_JB                    0x72 // 0x72
+#define OPCODE_JNB                   0x73 // 0x73
+#define OPCODE_JE                    0x74 // 0x74
+#define OPCODE_JNE                   0x75 // 0x75
+#define OPCODE_JBE                   0x76 // 0x76
+#define OPCODE_JA                    0x77 // 0x77
+#define OPCODE_JS                    0x78 // 0x78
+#define OPCODE_JNS                   0x79 // 0x79
+#define OPCODE_JPE                   0x7A // 0x7A
+#define OPCODE_JPO                   0x7B // 0x7B
+#define OPCODE_JL                    0x7C // 0x7C
+#define OPCODE_JGE                   0x7D // 0x7D
+#define OPCODE_JLE                   0x7E // 0x7E
+#define OPCODE_JG                    0x7F // 0x7F
+#define OPCODE_ADD_GROUP             0x80 // 0x80 ~ 0x83
+#define SUB_OPCODE_ADD               0x00 // [ADD GROUP]
+#define SUB_OPCODE_OR                0x01 // [ADD GROUP]
+#define SUB_OPCODE_ADC               0x02 // [ADD GROUP]
+#define SUB_OPCODE_SBB               0x03 // [ADD GROUP]
+#define SUB_OPCODE_AND               0x04 // [ADD GROUP]
+#define SUB_OPCODE_SUB               0x05 // [ADD GROUP]
+#define SUB_OPCODE_XOR               0x06 // [ADD GROUP]
+#define SUB_OPCODE_CMP               0x07 // [ADD GROUP]
+#define OPCODE_TEST                  0x84 // 0x84 ~ 0x85 (+RM 2)
+#define OPCODE_XCHG                  0x86 // 0x86 ~ 0x87 (+RM 2)
+#define OPCODE_MOV                   0x88 // 0x88 ~ 0x8E (+RM 6)
+#define OPCODE_UNDEFINED_8F          0x8F // 0x8F
 #define OPCODE_NOP                   0x90 // 0x90
+#define OPCODE_XCHG_RAX_R            0x91 // 0x91 ~ 0x97
+#define OPCODE_CWDE                  0x98 // 0x98
+#define OPCODE_CDQ                   0x99 // 0x99
+#define OPCODE_CALL_FAR              0x9A // 0x9A
+#define OPCODE_WAIT                  0x9B // 0x9B
+#define OPCODE_PUSHFD                0x9C // 0x9C
+#define OPCODE_POPFD                 0x9D // 0x9D
+#define OPCODE_SAHF                  0x9E // 0x9E
+#define OPCODE_LAHF                  0x9F // 0x9F
+#define OPCODE_CALL_NEAR             0xE8 // 0x8E
 #define OPCODE_TEST_GROUP            0xF6 // 0xF6 ~ 0xF7 (+RM 2)
 #define SUB_OPCODE_TEST_0            0x00 // [TEST GROUP]
 #define SUB_OPCODE_TEST_1            0x01 // [TEST GROUP]
@@ -83,6 +121,7 @@
 #define R16_RM16                     0x03
 #define AL_I8                        0x04
 #define RAX_I16                      0x05
+#define SEGR_RM                      0x06
 // Special Opcode Bit
 #define GET_D_BIT(A)                 (((A) >> 1) & 0x01) // For Non-Immediate Number Instruction (Operands Order Switch)
 #define GET_S_BIT(A)                 (((A) >> 1) & 0x01) // For Immediate Number Instruction (Signed Or Unsigned)
@@ -131,12 +170,14 @@
 #define REG_ADDRESS16_BP             0x06 // small 1234h ????
 #define REG_ADDRESS16_BX             0x07
 // Register Name (Segment Registers)
-#define REG_CS                       0x00
-#define REG_DS                       0x01
-#define REG_ES                       0x02
-#define REG_FS                       0x03
-#define REG_GS                       0x04
-#define REG_SS                       0x05
+#define REG_ES                       0x00
+#define REG_CS                       0x01
+#define REG_SS                       0x02
+#define REG_DS                       0x03
+#define REG_FS                       0x04
+#define REG_GS                       0x05
+#define REG_SEG6                     0x06
+#define REG_SEG7                     0x07
 // Special Values For RM
 #define RM_SIB_FLAG                  0x04 // Only For 32-Bits Addressing Mode 
 #define RM_ONLY_DISPLACEMENT_32_FLAG 0x05 // Only When AddressMode == 32 Bits && Mod == MOD_M_NO_DISPLACEMENT(0x00)
@@ -162,6 +203,13 @@
 #define GET_INDEX(A)                 (((A) >> 3) & 0x07)
 #define GET_BASE(A)                  ((A) & 0x07)
 
+// Size of Operands
+#define OPSIZE_8                     0x00
+#define OPSIZE_16                    0x01
+#define OPSIZE_32                    0x02
+#define OPSIZE_16_32                 0x03
+#define OPSIZE_ALL                   0x04
+
 class InstructionDef
 {
 private:
@@ -169,6 +217,7 @@ private:
     static map<BYTE, string> SinglePrefixName;
     static map<BYTE, string> Opcode;
     static map<BYTE, string> SubOpcode_TestGroup;
+    static map<BYTE, string> SubOpcode_AddGroup;
     static map<BYTE, string> Reg[5];
     static map<BYTE, string> AddressHead;
 public:
@@ -176,12 +225,14 @@ public:
     static map<BYTE, string> InitSinglePrefixName();
     static map<BYTE, string> InitOpcode();
     static map<BYTE, string> InitSubOpcode_TestGroup();
+    static map<BYTE, string> InitSubOpcode_AddGroup();
     static map<BYTE, string> InitReg(BYTE GroupID);
     static map<BYTE, string> InitAddressHead();
     static map<BYTE, string>& GetPrefix(BYTE GroupID);
     static map<BYTE, string>& GetSinglePrefixName();
     static map<BYTE, string>& GetOpcode();
     static map<BYTE, string>& GetSubOpcode_TestGroup();
+    static map<BYTE, string>& GetSubOpcode_AddGroup();
     static map<BYTE, string>& GetReg(BYTE GroupID);
     static map<BYTE, string>& GetAddressHead();
 };

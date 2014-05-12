@@ -93,8 +93,37 @@ map<BYTE, string> InstructionDef::InitOpcode()
     RetVal[OPCODE_IMUL_I8_3OP] = "imul";
     RetVal[OPCODE_INS] = "ins";
     RetVal[OPCODE_OUTS] = "outs";
+    RetVal[OPCODE_JO] = "jo";
+    RetVal[OPCODE_JNO] = "jno";
+    RetVal[OPCODE_JB] = "jb";
+    RetVal[OPCODE_JNB] = "jnb";
+    RetVal[OPCODE_JE] = "je";
+    RetVal[OPCODE_JNE] = "jne";
+    RetVal[OPCODE_JBE] = "jbe";
+    RetVal[OPCODE_JA] = "ja";
+    RetVal[OPCODE_JS] = "js";
+    RetVal[OPCODE_JNS] = "jns";
+    RetVal[OPCODE_JPE] = "jpe";
+    RetVal[OPCODE_JPO] = "jpo";
+    RetVal[OPCODE_JL] = "jl";
+    RetVal[OPCODE_JGE] = "jge";
+    RetVal[OPCODE_JLE] = "jle";
+    RetVal[OPCODE_JG] = "jg";
+    RetVal[OPCODE_TEST] = "test";
+    RetVal[OPCODE_XCHG] = "xchg";
     RetVal[OPCODE_MOV] = "mov";
+    RetVal[OPCODE_UNDEFINED_8F] = "(undefined command)";
     RetVal[OPCODE_NOP] = "nop";
+    RetVal[OPCODE_XCHG_RAX_R] = "xchg";
+    RetVal[OPCODE_CWDE] = "cwde";
+    RetVal[OPCODE_CDQ] = "cdq";
+    RetVal[OPCODE_CALL_FAR] = "call";
+    RetVal[OPCODE_WAIT] = "wait";
+    RetVal[OPCODE_PUSHFD] = "pushfd";
+    RetVal[OPCODE_POPFD] = "popfd";
+    RetVal[OPCODE_SAHF] = "sahf";
+    RetVal[OPCODE_LAHF] = "lahf";
+    RetVal[OPCODE_CALL_NEAR] = "call";
     return RetVal;
 }
 
@@ -109,6 +138,20 @@ map<BYTE, string> InstructionDef::InitSubOpcode_TestGroup()
     RetVal[SUB_OPCODE_IMUL] = "imul";
     RetVal[SUB_OPCODE_DIV] = "div";
     RetVal[SUB_OPCODE_IDIV] = "idiv";
+    return RetVal;
+}
+
+map<BYTE, string> InstructionDef::InitSubOpcode_AddGroup()
+{
+    map<BYTE, string> RetVal;
+    RetVal[SUB_OPCODE_ADD] = "add";
+    RetVal[SUB_OPCODE_OR] = "or";
+    RetVal[SUB_OPCODE_ADC] = "adc";
+    RetVal[SUB_OPCODE_SBB] = "sbb";
+    RetVal[SUB_OPCODE_AND] = "and";
+    RetVal[SUB_OPCODE_SUB] = "sub";
+    RetVal[SUB_OPCODE_XOR] = "xor";
+    RetVal[SUB_OPCODE_CMP] = "cmp";
     return RetVal;
 }
 
@@ -164,6 +207,8 @@ map<BYTE, string> InstructionDef::InitReg(BYTE GroupID)
             RetVal[REG_FS] = "fs";
             RetVal[REG_GS] = "gs";
             RetVal[REG_SS] = "ss";
+            RetVal[REG_SEG6] = "seg6:";
+            RetVal[REG_SEG7] = "seg7:";
             break;
         default:
             break;
@@ -200,6 +245,11 @@ map<BYTE, string>& InstructionDef::GetSubOpcode_TestGroup()
     return InstructionDef::SubOpcode_TestGroup;
 }
 
+map<BYTE, string>& InstructionDef::GetSubOpcode_AddGroup()
+{
+    return InstructionDef::SubOpcode_AddGroup;
+}
+
 map<BYTE, string>& InstructionDef::GetReg(BYTE GroupID)
 {
     return InstructionDef::Reg[GroupID];
@@ -214,6 +264,7 @@ map<BYTE, string> InstructionDef::Prefix[4];
 map<BYTE, string> InstructionDef::SinglePrefixName;
 map<BYTE, string> InstructionDef::Opcode;
 map<BYTE, string> InstructionDef::SubOpcode_TestGroup;
+map<BYTE, string> InstructionDef::SubOpcode_AddGroup;
 map<BYTE, string> InstructionDef::Reg[5];
 map<BYTE, string> InstructionDef::AddressHead;
 

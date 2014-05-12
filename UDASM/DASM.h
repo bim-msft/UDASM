@@ -88,7 +88,7 @@ public:
     string FormatAsmWord(WORD CntWord);
     string FormatBinDWord(DWORD CntDWord);
     string FormatAsmDWord(DWORD CntDWord);
-    string ParseMemoryOperand(BYTE Opcode, BYTE MODRM);
+    string ParseMemoryOperand(BYTE Opcode, BYTE MODRM, BYTE OpSize = OPSIZE_ALL);
     string ParseRegisterOperand(BYTE Opcode, BYTE REG);
     string ParseImmediateOperand(BYTE Opcode);
     string ParseImmediateOperand_I8();
