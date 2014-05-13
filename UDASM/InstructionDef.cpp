@@ -123,6 +123,17 @@ map<BYTE, string> InstructionDef::InitOpcode()
     RetVal[OPCODE_POPFD] = "popfd";
     RetVal[OPCODE_SAHF] = "sahf";
     RetVal[OPCODE_LAHF] = "lahf";
+    RetVal[OPCODE_MOV_RAX_M_ONLY_DISP] = "mov";
+    RetVal[OPCODE_MOVS] = "movs";
+    RetVal[OPCODE_CMPS] = "cmps";
+    RetVal[OPCODE_TEST_RAX_IMM] = "test";
+    RetVal[OPCODE_STOS] = "stos";
+    RetVal[OPCODE_LODS] = "lods";
+    RetVal[OPCODE_SCAS] = "scas";
+    RetVal[OPCODE_MOV_R_IMM] = "mov";
+    RetVal[OPCODE_ROL_M_I8] = "rol";
+    RetVal[OPCODE_RETN_I16] = "retn";
+    RetVal[OPCODE_RETN] = "retn";
     RetVal[OPCODE_CALL_NEAR] = "call";
     return RetVal;
 }

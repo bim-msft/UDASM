@@ -104,6 +104,17 @@
 #define OPCODE_POPFD                 0x9D // 0x9D
 #define OPCODE_SAHF                  0x9E // 0x9E
 #define OPCODE_LAHF                  0x9F // 0x9F
+#define OPCODE_MOV_RAX_M_ONLY_DISP   0xA0 // 0xA0 ~ 0xA3
+#define OPCODE_MOVS                  0xA4 // 0xA4 ~ 0xA5
+#define OPCODE_CMPS                  0xA6 // 0xA6 ~ 0xA7
+#define OPCODE_TEST_RAX_IMM          0xA8 // 0xA8 ~ 0xA9 (+RM 2)
+#define OPCODE_STOS                  0xAA // 0xAA ~ 0xAB (+RM 2)
+#define OPCODE_LODS                  0xAC // 0xAC ~ 0xAD (+RM 2)
+#define OPCODE_SCAS                  0xAE // 0xAE ~ 0xAF (+RM 2)
+#define OPCODE_MOV_R_IMM             0xB0 // 0xB0 ~ 0xBF (+REG 8 * RM 2)
+#define OPCODE_ROL_M_I8              0xC0 // 0xC0 ~ 0xC1 (+RM 2)
+#define OPCODE_RETN_I16              0xC2 // 0xC2
+#define OPCODE_RETN                  0xC3 // 0xC3
 #define OPCODE_CALL_NEAR             0xE8 // 0x8E
 #define OPCODE_TEST_GROUP            0xF6 // 0xF6 ~ 0xF7 (+RM 2)
 #define SUB_OPCODE_TEST_0            0x00 // [TEST GROUP]
