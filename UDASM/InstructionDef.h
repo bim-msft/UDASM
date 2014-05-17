@@ -92,7 +92,8 @@
 #define SUB_OPCODE_CMP               0x07 // [ADD GROUP]
 #define OPCODE_TEST                  0x84 // 0x84 ~ 0x85 (+RM 2)
 #define OPCODE_XCHG                  0x86 // 0x86 ~ 0x87 (+RM 2)
-#define OPCODE_MOV                   0x88 // 0x88 ~ 0x8E (+RM 6)
+#define OPCODE_MOV                   0x88 // 0x88 ~ 0x8C, 0x8E (+RM 1~4, 6)
+#define OPCODE_LEA                   0x8D // 0x8D
 #define OPCODE_UNDEFINED_8F          0x8F // 0x8F
 #define OPCODE_NOP                   0x90 // 0x90
 #define OPCODE_XCHG_RAX_R            0x91 // 0x91 ~ 0x97
@@ -112,10 +113,36 @@
 #define OPCODE_LODS                  0xAC // 0xAC ~ 0xAD (+RM 2)
 #define OPCODE_SCAS                  0xAE // 0xAE ~ 0xAF (+RM 2)
 #define OPCODE_MOV_R_IMM             0xB0 // 0xB0 ~ 0xBF (+REG 8 * RM 2)
-#define OPCODE_ROL_M_I8              0xC0 // 0xC0 ~ 0xC1 (+RM 2)
+#define OPCODE_ROL_GROUP             0xC0 // 0xC0 ~ 0xC1 (+RM 2)
+#define OPCODE_ROL_GROUP_2           0xD0 // 0xD0 ~ 0xD1 (+RM 2)
+#define OPCODE_ROL_GROUP_3           0xD2 // 0xD2 ~ 0xD3 (+RM 2)
+#define SUB_OPCODE_ROL               0x00 // [ROL GROUP]
+#define SUB_OPCODE_ROR               0x01 // [ROL GROUP]
+#define SUB_OPCODE_RCL               0x02 // [ROL GROUP]
+#define SUB_OPCODE_RCR               0x03 // [ROL GROUP]
+#define SUB_OPCODE_SHL               0x04 // [ROL GROUP]
+#define SUB_OPCODE_SHR               0x05 // [ROL GROUP]
+#define SUB_OPCODE_SAL               0x06 // [ROL GROUP]
+#define SUB_OPCODE_SAR               0x07 // [ROL GROUP]
 #define OPCODE_RETN_I16              0xC2 // 0xC2
 #define OPCODE_RETN                  0xC3 // 0xC3
-#define OPCODE_CALL_NEAR             0xE8 // 0x8E
+                                          // 0xC4
+                                          // 0xC5
+                                          // 0xC6
+                                          // 0xC7
+#define OPCODE_ENTER                 0xC8 // 0xC8
+#define OPCODE_LEAVE                 0xC9 // 0xC9
+#define OPCODE_RETF_I16              0xCA // 0xCA
+#define OPCODE_RETF                  0xCB // 0xCB
+#define OPCODE_INT3                  0xCC // 0xCC
+#define OPCODE_INT                   0xCD // 0xCD
+#define OPCODE_INTO                  0xCE // 0xCE
+#define OPCODE_IRETD                 0xCF // 0xCF
+#define OPCODE_AAM                   0xD4 // 0xD4
+#define OPCODE_AAD                   0xD5 // 0xD5
+#define OPCODE_SALC                  0xD6 // 0xD6
+#define OPCODE_XLAT                  0xD7 // 0xD7
+#define OPCODE_CALL_NEAR             0xE8 // 0xE8
 #define OPCODE_TEST_GROUP            0xF6 // 0xF6 ~ 0xF7 (+RM 2)
 #define SUB_OPCODE_TEST_0            0x00 // [TEST GROUP]
 #define SUB_OPCODE_TEST_1            0x01 // [TEST GROUP]
@@ -229,6 +256,7 @@ private:
     static map<BYTE, string> Opcode;
     static map<BYTE, string> SubOpcode_TestGroup;
     static map<BYTE, string> SubOpcode_AddGroup;
+    static map<BYTE, string> SubOpcode_RolGroup;
     static map<BYTE, string> Reg[5];
     static map<BYTE, string> AddressHead;
 public:
@@ -237,6 +265,7 @@ public:
     static map<BYTE, string> InitOpcode();
     static map<BYTE, string> InitSubOpcode_TestGroup();
     static map<BYTE, string> InitSubOpcode_AddGroup();
+    static map<BYTE, string> InitSubOpcode_RolGroup();
     static map<BYTE, string> InitReg(BYTE GroupID);
     static map<BYTE, string> InitAddressHead();
     static map<BYTE, string>& GetPrefix(BYTE GroupID);
@@ -244,6 +273,7 @@ public:
     static map<BYTE, string>& GetOpcode();
     static map<BYTE, string>& GetSubOpcode_TestGroup();
     static map<BYTE, string>& GetSubOpcode_AddGroup();
+    static map<BYTE, string>& GetSubOpcode_RolGroup();
     static map<BYTE, string>& GetReg(BYTE GroupID);
     static map<BYTE, string>& GetAddressHead();
 };

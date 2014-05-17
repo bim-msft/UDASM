@@ -65,6 +65,7 @@ void DASM::INTEL_X86_Init()
     InstructionDef::GetOpcode() = InstructionDef::InitOpcode();
     InstructionDef::GetSubOpcode_TestGroup() = InstructionDef::InitSubOpcode_TestGroup();
     InstructionDef::GetSubOpcode_AddGroup() = InstructionDef::InitSubOpcode_AddGroup();
+    InstructionDef::GetSubOpcode_RolGroup() = InstructionDef::InitSubOpcode_RolGroup();
     InstructionDef::GetReg(REGSIZE_8) = InstructionDef::InitReg(REGSIZE_8);
     InstructionDef::GetReg(REGSIZE_16) = InstructionDef::InitReg(REGSIZE_16);
     InstructionDef::GetReg(REGSIZE_32) = InstructionDef::InitReg(REGSIZE_32);
@@ -88,7 +89,7 @@ void DASM::INTEL_X86_Exec()
     BYTE PrefixConflicting = NO_PREFIX_CONFLICTION;
     while (this->GetExeFile())
     {
-        if (this->GetCntAddress() >= 0x400660)
+        if (this->GetCntAddress() >= 0x402000)
             break;
         BYTE CntByte = this->ReadByte();
         string BinByte;
@@ -311,7 +312,7 @@ void DASM::INTEL_X86_Exec()
             case OPCODE_MOV + R8_RM8:
             case OPCODE_MOV + R16_RM16:
             case OPCODE_MOV + AL_I8:
-            case OPCODE_MOV + RAX_I16:
+            //case OPCODE_MOV + RAX_I16:
             case OPCODE_MOV + SEGR_RM:
                 this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte - GET_RM(CntByte)] << " ";
                 switch (GET_RM(CntByte)) {
@@ -550,15 +551,50 @@ void DASM::INTEL_X86_Exec()
                 this->GetAsmStream() << InstructionDef::GetOpcode()[OPCODE_MOV_R_IMM] << " ";
                 this->GetAsmStream() << (GET_5TH_BIT(CntByte) ? InstructionDef::GetReg(this->GetCPUMode())[GET_RM(CntByte)] + ", " + this->ParseImmediateOperand_I16_I32() : InstructionDef::GetReg(REGSIZE_8)[GET_RM(CntByte)] + ", " + this->ParseImmediateOperand_I8());
                 break;
-            case OPCODE_ROL_M_I8 + RM8_R8:
-            case OPCODE_ROL_M_I8 + RM16_R16:
-                this->GetAsmStream() << InstructionDef::GetOpcode()[OPCODE_ROL_M_I8] << " ";
+            case OPCODE_ROL_GROUP + RM8_R8:
+            case OPCODE_ROL_GROUP + RM16_R16:
                 MODRM = this->ReadByte();
-                this->GetAsmStream() << this->ParseMemoryOperand(CntByte, MODRM) << ", " << this->ParseImmediateOperand_I8();
+                this->GetAsmStream() << InstructionDef::GetSubOpcode_RolGroup()[GET_OPCODE2(MODRM)] << " ";
+                this->GetAsmStream() << this->ParseMODRM_RM(CntByte, MODRM) << ", " << this->ParseImmediateOperand_I8();
+                break;
+            case OPCODE_ROL_GROUP_2 + RM8_R8:
+            case OPCODE_ROL_GROUP_2 + RM16_R16:
+                MODRM = this->ReadByte();
+                this->GetAsmStream() << InstructionDef::GetSubOpcode_RolGroup()[GET_OPCODE2(MODRM)] << " ";
+                this->GetAsmStream() << this->ParseMODRM_RM(CntByte, MODRM) << ", 01h";
+                break;
+            case OPCODE_ROL_GROUP_3 + RM8_R8:
+            case OPCODE_ROL_GROUP_3 + RM16_R16:
+                MODRM = this->ReadByte();
+                this->GetAsmStream() << InstructionDef::GetSubOpcode_RolGroup()[GET_OPCODE2(MODRM)] << " ";
+                this->GetAsmStream() << this->ParseMODRM_RM(CntByte, MODRM) << ", " << InstructionDef::GetReg(REGSIZE_8)[REG_AL_8];
                 break;
             case OPCODE_RETN_I16:
                 this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
                 this->GetAsmStream() << this->ParseImmediateOperand_I16();
+                break;
+            case OPCODE_LEA:
+                this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
+                MODRM = this->ReadByte();
+                this->GetAsmStream() << this->ParseRegisterOperand(CntByte, GET_REG(CntByte)) << ", " << this->ParseMODRM_RM(CntByte, MODRM);
+                break;
+            case OPCODE_ENTER:
+                this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
+                this->GetAsmStream() << this->ParseImmediateOperand_I16() << ", " << this->ParseImmediateOperand_I8();
+                break;
+            case OPCODE_RETF_I16:
+                this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
+                this->GetAsmStream() << this->ParseImmediateOperand_I16();
+                break;
+            case OPCODE_INT:
+            case OPCODE_AAM:
+            case OPCODE_AAD:
+                this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
+                this->GetAsmStream() << this->ParseImmediateOperand_I8();
+                break;
+            case OPCODE_XLAT:
+                this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
+                this->GetAsmStream() << "byte ptr [" << InstructionDef::GetReg(this->GetAddressMode())[REG_EBX_32] << " + al]";
                 break;
             case OPCODE_DAA:
             case OPCODE_DAS:
@@ -574,6 +610,12 @@ void DASM::INTEL_X86_Exec()
             case OPCODE_SAHF:
             case OPCODE_LAHF:
             case OPCODE_RETN:
+            case OPCODE_LEAVE:
+            case OPCODE_RETF:
+            case OPCODE_INT3:
+            case OPCODE_INTO:
+            case OPCODE_IRETD:
+            case OPCODE_SALC:
                 this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte];
                 break;
             default:

@@ -112,6 +112,7 @@ map<BYTE, string> InstructionDef::InitOpcode()
     RetVal[OPCODE_TEST] = "test";
     RetVal[OPCODE_XCHG] = "xchg";
     RetVal[OPCODE_MOV] = "mov";
+    RetVal[OPCODE_LEA] = "lea";
     RetVal[OPCODE_UNDEFINED_8F] = "(undefined command)";
     RetVal[OPCODE_NOP] = "nop";
     RetVal[OPCODE_XCHG_RAX_R] = "xchg";
@@ -131,9 +132,20 @@ map<BYTE, string> InstructionDef::InitOpcode()
     RetVal[OPCODE_LODS] = "lods";
     RetVal[OPCODE_SCAS] = "scas";
     RetVal[OPCODE_MOV_R_IMM] = "mov";
-    RetVal[OPCODE_ROL_M_I8] = "rol";
     RetVal[OPCODE_RETN_I16] = "retn";
     RetVal[OPCODE_RETN] = "retn";
+    RetVal[OPCODE_ENTER] = "enter";
+    RetVal[OPCODE_LEAVE] = "leave";
+    RetVal[OPCODE_RETF_I16] = "retf";
+    RetVal[OPCODE_RETF] = "retf";
+    RetVal[OPCODE_INT3] = "int3";
+    RetVal[OPCODE_INT] = "int";
+    RetVal[OPCODE_INTO] = "into";
+    RetVal[OPCODE_IRETD] = "iretd";
+    RetVal[OPCODE_AAM] = "aam";
+    RetVal[OPCODE_AAD] = "aad";
+    RetVal[OPCODE_SALC] = "salc";
+    RetVal[OPCODE_XLAT] = "xlat";
     RetVal[OPCODE_CALL_NEAR] = "call";
     return RetVal;
 }
@@ -163,6 +175,20 @@ map<BYTE, string> InstructionDef::InitSubOpcode_AddGroup()
     RetVal[SUB_OPCODE_SUB] = "sub";
     RetVal[SUB_OPCODE_XOR] = "xor";
     RetVal[SUB_OPCODE_CMP] = "cmp";
+    return RetVal;
+}
+
+map<BYTE, string> InstructionDef::InitSubOpcode_RolGroup()
+{
+    map<BYTE, string> RetVal;
+    RetVal[SUB_OPCODE_ROL] = "rol";
+    RetVal[SUB_OPCODE_ROR] = "ror";
+    RetVal[SUB_OPCODE_RCL] = "rcl";
+    RetVal[SUB_OPCODE_RCR] = "rcr";
+    RetVal[SUB_OPCODE_SHL] = "shl";
+    RetVal[SUB_OPCODE_SHR] = "shr";
+    RetVal[SUB_OPCODE_SAL] = "sal";
+    RetVal[SUB_OPCODE_SAR] = "sar";
     return RetVal;
 }
 
@@ -261,6 +287,11 @@ map<BYTE, string>& InstructionDef::GetSubOpcode_AddGroup()
     return InstructionDef::SubOpcode_AddGroup;
 }
 
+map<BYTE, string>& InstructionDef::GetSubOpcode_RolGroup()
+{
+    return InstructionDef::SubOpcode_RolGroup;
+}
+
 map<BYTE, string>& InstructionDef::GetReg(BYTE GroupID)
 {
     return InstructionDef::Reg[GroupID];
@@ -276,6 +307,7 @@ map<BYTE, string> InstructionDef::SinglePrefixName;
 map<BYTE, string> InstructionDef::Opcode;
 map<BYTE, string> InstructionDef::SubOpcode_TestGroup;
 map<BYTE, string> InstructionDef::SubOpcode_AddGroup;
+map<BYTE, string> InstructionDef::SubOpcode_RolGroup;
 map<BYTE, string> InstructionDef::Reg[5];
 map<BYTE, string> InstructionDef::AddressHead;
 
