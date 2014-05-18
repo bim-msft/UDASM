@@ -146,7 +146,18 @@ map<BYTE, string> InstructionDef::InitOpcode()
     RetVal[OPCODE_AAD] = "aad";
     RetVal[OPCODE_SALC] = "salc";
     RetVal[OPCODE_XLAT] = "xlat";
+    RetVal[OPCODE_LOOPNZ] = "loopnz";
+    RetVal[OPCODE_LOOPZ] = "loopz";
+    RetVal[OPCODE_LOOP] = "loop";
+    RetVal[OPCODE_JECXZ] = "jecxz";
+    RetVal[OPCODE_IN] = "in";
+    RetVal[OPCODE_OUT] = "out";
     RetVal[OPCODE_CALL_NEAR] = "call";
+    RetVal[OPCODE_JMP_NEAR] = "jmp";
+    RetVal[OPCODE_JMP_FAR] = "jmp";
+    RetVal[OPCODE_JMP] = "jmp";
+    RetVal[OPCODE_IN_DX] = "in";
+    RetVal[OPCODE_OUT_DX] = "dx";
     return RetVal;
 }
 
@@ -189,6 +200,107 @@ map<BYTE, string> InstructionDef::InitSubOpcode_RolGroup()
     RetVal[SUB_OPCODE_SHR] = "shr";
     RetVal[SUB_OPCODE_SAL] = "sal";
     RetVal[SUB_OPCODE_SAR] = "sar";
+    return RetVal;
+}
+
+map<BYTE, string> InstructionDef::InitSubOpcode_FaddGroup()
+{
+    map<BYTE, string> RetVal;
+    RetVal[SUB_OPCODE_FADD] = "fadd";
+    RetVal[SUB_OPCODE_FMUL] = "fmul";
+    RetVal[SUB_OPCODE_FCOM] = "fcom";
+    RetVal[SUB_OPCODE_FCOMP] = "fcomp";
+    RetVal[SUB_OPCODE_FSUB] = "fsub";
+    RetVal[SUB_OPCODE_FSUBR] = "fsubr";
+    RetVal[SUB_OPCODE_FDIV] = "fdiv";
+    RetVal[SUB_OPCODE_FDIVR] = "fdivr";
+    return RetVal;
+}
+
+map<BYTE, string> InstructionDef::InitSubOpcode_FldGroup()
+{
+    map<BYTE, string> RetVal;
+    RetVal[SUB_OPCODE_FLD] = "fld";
+    RetVal[SUB_OPCODE_FST] = "fst";
+    RetVal[SUB_OPCODE_FSTP] = "fstp";
+    RetVal[SUB_OPCODE_FLDENV] = "fldenv";
+    RetVal[SUB_OPCODE_FLDCW] = "fldcw";
+    RetVal[SUB_OPCODE_FSTENV] = "fstenv";
+    RetVal[SUB_OPCODE_FSTCW] = "fstcw";
+    return RetVal;
+}
+
+map<BYTE, string> InstructionDef::InitSubOpcode_Fld64Group()
+{
+    map<BYTE, string> RetVal;
+    RetVal[SUB_OPCODE_FLD] = "fld";
+    RetVal[SUB_OPCODE_FISTTP] = "fisttp";
+    RetVal[SUB_OPCODE_FST] = "fst";
+    RetVal[SUB_OPCODE_FSTP] = "fstp";
+    RetVal[SUB_OPCODE_FRSTOR] = "frstor";
+    RetVal[SUB_OPCODE_FSAVE] = "fsave";
+    RetVal[SUB_OPCODE_FSTSW] = "fstsw";
+    return RetVal;
+}
+
+map<BYTE, string> InstructionDef::InitSubOpcode_FiaddGroup()
+{
+    map<BYTE, string> RetVal;
+    RetVal[SUB_OPCODE_FIADD] = "fiadd";
+    RetVal[SUB_OPCODE_FIMUL] = "fimul";
+    RetVal[SUB_OPCODE_FICOM] = "ficom";
+    RetVal[SUB_OPCODE_FICOMP] = "ficomp";
+    RetVal[SUB_OPCODE_FISUB] = "fisub";
+    RetVal[SUB_OPCODE_FISUBR] = "fisubr";
+    RetVal[SUB_OPCODE_FIDIV] = "fidiv";
+    RetVal[SUB_OPCODE_FIDIVR] = "fidivr";
+    return RetVal;
+}
+
+map<BYTE, string> InstructionDef::InitSubOpcode_FildGroup()
+{
+    map<BYTE, string> RetVal;
+    RetVal[SUB_OPCODE_FILD] = "fild";
+    RetVal[SUB_OPCODE_FISTTP] = "fisttp";
+    RetVal[SUB_OPCODE_FIST] = "fist";
+    RetVal[SUB_OPCODE_FISTP] = "fistp";
+    RetVal[SUB_OPCODE_FLD_TBYTE] = "fld";
+    RetVal[SUB_OPCODE_FSTP_TBYTE] = "fstp";
+    return RetVal;
+}
+
+map<BYTE, string> InstructionDef::InitSubOpcode_Fild16Group()
+{
+    map<BYTE, string> RetVal;
+    RetVal[SUB_OPCODE_FILD] = "fild";
+    RetVal[SUB_OPCODE_FISTTP] = "fisttp";
+    RetVal[SUB_OPCODE_FIST] = "fist";
+    RetVal[SUB_OPCODE_FISTP] = "fistp";
+    RetVal[SUB_OPCODE_FBLD_TBYTE] = "fbld";
+    RetVal[SUB_OPCODE_FILD64] = "fild";
+    RetVal[SUB_OPCODE_FBSTP_TBYTE] = "fbstp";
+    RetVal[SUB_OPCODE_FISTP64] = "fistp";
+    return RetVal;
+}
+
+map<BYTE, string> InstructionDef::InitSubOpcode_Inc8Group()
+{
+    map<BYTE, string> RetVal;
+    RetVal[SUB_OPCODE_INC] = "inc";
+    RetVal[SUB_OPCODE_DEC] = "dec";
+    return RetVal;
+}
+
+map<BYTE, string> InstructionDef::InitSubOpcode_Inc16_32Group()
+{
+    map<BYTE, string> RetVal;
+    RetVal[SUB_OPCODE_INC] = "inc";
+    RetVal[SUB_OPCODE_DEC] = "dec";
+    RetVal[SUB_OPCODE_CALL_NEAR] = "call";
+    RetVal[SUB_OPCODE_CALL_FAR] = "call";
+    RetVal[SUB_OPCODE_JMP_NEAR] = "jmp";
+    RetVal[SUB_OPCODE_JMP_FAR] = "jmp";
+    RetVal[SUB_OPCODE_PUSH] = "push";
     return RetVal;
 }
 
@@ -259,6 +371,10 @@ map<BYTE, string> InstructionDef::InitAddressHead()
     RetVal[ADDRESSHEAD_8] = "byte ptr";
     RetVal[ADDRESSHEAD_16] = "word ptr";
     RetVal[ADDRESSHEAD_32] = "dword ptr";
+    RetVal[ADDRESSHEAD_64] = "qword ptr";
+    RetVal[ADDRESSHEAD_F] = "fword ptr";
+    RetVal[ADDRESSHEAD_NULL] = "";
+    RetVal[ADDRESSHEAD_TBYTE] = "tbyte ptr";
     return RetVal;
 }
 
@@ -292,6 +408,46 @@ map<BYTE, string>& InstructionDef::GetSubOpcode_RolGroup()
     return InstructionDef::SubOpcode_RolGroup;
 }
 
+map<BYTE, string>& InstructionDef::GetSubOpcode_FaddGroup()
+{
+    return InstructionDef::SubOpcode_FaddGroup;
+}
+
+map<BYTE, string>& InstructionDef::GetSubOpcode_FldGroup()
+{
+    return InstructionDef::SubOpcode_FldGroup;
+}
+
+map<BYTE, string>& InstructionDef::GetSubOpcode_Fld64Group()
+{
+    return InstructionDef::SubOpcode_Fld64Group;
+}
+
+map<BYTE, string>& InstructionDef::GetSubOpcode_FiaddGroup()
+{
+    return InstructionDef::SubOpcode_FiaddGroup;
+}
+
+map<BYTE, string>& InstructionDef::GetSubOpcode_FildGroup()
+{
+    return InstructionDef::SubOpcode_FildGroup;
+}
+
+map<BYTE, string>& InstructionDef::GetSubOpcode_Fild16Group()
+{
+    return InstructionDef::SubOpcode_Fild16Group;
+}
+
+map<BYTE, string>& InstructionDef::GetSubOpcode_Inc8Group()
+{
+    return InstructionDef::SubOpcode_Inc8Group;
+}
+
+map<BYTE, string>& InstructionDef::GetSubOpcode_Inc16_32Group()
+{
+    return InstructionDef::SubOpcode_Inc16_32Group;
+}
+
 map<BYTE, string>& InstructionDef::GetReg(BYTE GroupID)
 {
     return InstructionDef::Reg[GroupID];
@@ -308,6 +464,14 @@ map<BYTE, string> InstructionDef::Opcode;
 map<BYTE, string> InstructionDef::SubOpcode_TestGroup;
 map<BYTE, string> InstructionDef::SubOpcode_AddGroup;
 map<BYTE, string> InstructionDef::SubOpcode_RolGroup;
+map<BYTE, string> InstructionDef::SubOpcode_FaddGroup;
+map<BYTE, string> InstructionDef::SubOpcode_FldGroup;
+map<BYTE, string> InstructionDef::SubOpcode_Fld64Group;
+map<BYTE, string> InstructionDef::SubOpcode_FiaddGroup;
+map<BYTE, string> InstructionDef::SubOpcode_FildGroup;
+map<BYTE, string> InstructionDef::SubOpcode_Fild16Group;
+map<BYTE, string> InstructionDef::SubOpcode_Inc8Group;
+map<BYTE, string> InstructionDef::SubOpcode_Inc16_32Group;
 map<BYTE, string> InstructionDef::Reg[5];
 map<BYTE, string> InstructionDef::AddressHead;
 

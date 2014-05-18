@@ -142,7 +142,72 @@
 #define OPCODE_AAD                   0xD5 // 0xD5
 #define OPCODE_SALC                  0xD6 // 0xD6
 #define OPCODE_XLAT                  0xD7 // 0xD7
-#define OPCODE_CALL_NEAR             0xE8 // 0xE8
+#define OPCODE_FADD_GROUP            0xD8 // 0xD8, 0xDC  [FPU!!] TODO ST(0) // dword/qword
+#define SUB_OPCODE_FADD              0x00 // [FADD GROUP] dword/qword ptr only
+#define SUB_OPCODE_FMUL              0x01 // [FADD GROUP] dword/qword ptr only
+#define SUB_OPCODE_FCOM              0x02 // [FADD GROUP] dword/qword ptr only
+#define SUB_OPCODE_FCOMP             0x03 // [FADD GROUP] dword/qword ptr only
+#define SUB_OPCODE_FSUB              0x04 // [FADD GROUP] dword/qword ptr only
+#define SUB_OPCODE_FSUBR             0x05 // [FADD GROUP] dword/qword ptr only
+#define SUB_OPCODE_FDIV              0x06 // [FADD GROUP] dword/qword ptr only
+#define SUB_OPCODE_FDIVR             0x07 // [FADD GROUP] dword/qword ptr only
+#define OPCODE_FLD_GROUP_RM32        0xD9 // 0xD9
+#define SUB_OPCODE_FLD               0x00 // [FLD GROUP] dword/qword ptr only
+#define SUB_OPCODE_FST               0x02 // [FLD GROUP] dword/qword ptr only
+#define SUB_OPCODE_FSTP              0x03 // [FLD GROUP] dword/qword ptr only
+#define SUB_OPCODE_FLDENV            0x04 // [FLD GROUP] no address head ([eax] only)
+#define SUB_OPCODE_FLDCW             0x05 // [FLD GROUP] word ptr only
+#define SUB_OPCODE_FSTENV            0x06 // [FLD GROUP] no address head ([eax] only)
+#define SUB_OPCODE_FSTCW             0x07 // [FLD GROUP] word ptr only
+#define OPCODE_FLD_GROUP_RM64        0xDD // 0xDD
+#define SUB_OPCODE_FLD               0x00 // [FLD_64 GROUP] dword/qword ptr only
+#define SUB_OPCODE_FISTTP            0x01 // [FLD_64 GROUP] qword ptr only
+#define SUB_OPCODE_FST               0x02 // [FLD_64 GROUP] dword/qword ptr only
+#define SUB_OPCODE_FSTP              0x03 // [FLD_64 GROUP] dword/qword ptr only
+#define SUB_OPCODE_FRSTOR            0x04 // [FLD_64 GROUP] no address head ([eax] only)
+#define SUB_OPCODE_FSAVE             0x06 // [FLD_64 GROUP] no address head ([eax] only)
+#define SUB_OPCODE_FSTSW             0x07 // [FLD_64 GROUP] word ptr only
+#define OPCODE_FIADD_GROUP           0xDA // 0xDA, 0xDE dword/word
+#define SUB_OPCODE_FIADD             0x00 // [FIADD GROUP] dword ptr only
+#define SUB_OPCODE_FIMUL             0x01 // [FIADD GROUP] dword ptr only
+#define SUB_OPCODE_FICOM             0x02 // [FIADD GROUP] dword ptr only
+#define SUB_OPCODE_FICOMP            0x03 // [FIADD GROUP] dword ptr only
+#define SUB_OPCODE_FISUB             0x04 // [FIADD GROUP] dword ptr only
+#define SUB_OPCODE_FISUBR            0x05 // [FIADD GROUP] dword ptr only
+#define SUB_OPCODE_FIDIV             0x06 // [FIADD GROUP] dword ptr only
+#define SUB_OPCODE_FIDIVR            0x07 // [FIADD GROUP] dword ptr only
+#define OPCODE_FILD_GROUP_RM32       0xDB // 0xDB
+#define SUB_OPCODE_FILD              0x00 // [FILD GROUP] dword ptr only
+#define SUB_OPCODE_FISTTP            0x01 // [FILD GROUP] dword ptr only
+#define SUB_OPCODE_FIST              0x02 // [FILD GROUP] dword ptr only
+#define SUB_OPCODE_FISTP             0x03 // [FILD GROUP] dword ptr only
+#define SUB_OPCODE_FLD_TBYTE         0x05 // [FILD GROUP] tbyte ptr only
+#define SUB_OPCODE_FSTP_TBYTE        0x07 // [FILD GROUP] tbyte ptr only
+#define OPCODE_FILD_GROUP_RM16       0xDF // 0xDF
+#define SUB_OPCODE_FILD              0x00 // [FILD_16 GROUP] word ptr only
+#define SUB_OPCODE_FISTTP            0x01 // [FILD_16 GROUP] word ptr only
+#define SUB_OPCODE_FIST              0x02 // [FILD_16 GROUP] word ptr only
+#define SUB_OPCODE_FISTP             0x03 // [FILD_16 GROUP] word ptr only
+#define SUB_OPCODE_FBLD_TBYTE        0x04 // [FILD_16 GROUP] tbyte ptr only
+#define SUB_OPCODE_FILD64            0x05 // [FILD_16 GROUP] qword ptr only
+#define SUB_OPCODE_FBSTP_TBYTE       0x06 // [FILD_16 GROUP] tbyte ptr only
+#define SUB_OPCODE_FISTP64           0x07 // [FILD_16 GROUP] qword ptr only
+#define OPCODE_LOOPNZ                0xE0 // 0xE0
+#define OPCODE_LOOPZ                 0xE1 // 0xE1
+#define OPCODE_LOOP                  0xE2 // 0xE2
+#define OPCODE_JECXZ                 0xE3 // 0xE3
+#define OPCODE_IN                    0xE4 // 0xE4 ~ 0xE5 (+RM 2)
+#define OPCODE_OUT                   0xE6 // 0xE6 ~ 0xE7 (+RM 2)
+#define OPCODE_CALL_NEAR             0xE8 // 0xE8 Unsigned
+#define OPCODE_JMP_NEAR              0xE9 // 0xE9 Unsigned
+#define OPCODE_JMP_FAR               0xEA // 0xEA
+#define OPCODE_JMP                   0xEB // 0xEB
+#define OPCODE_IN_DX                 0xEC // 0xEC ~ 0xED (+RM 2)
+#define OPCODE_OUT_DX                0xEE // 0xEE ~ 0xEF (+RM 2)
+
+#define OPCODE_INT1                  0xF1 // 0xF1
+#define OPCODE_HLT                   0xF4 // 0xF4
+#define OPCODE_CMC                   0xF5 // 0xF5
 #define OPCODE_TEST_GROUP            0xF6 // 0xF6 ~ 0xF7 (+RM 2)
 #define SUB_OPCODE_TEST_0            0x00 // [TEST GROUP]
 #define SUB_OPCODE_TEST_1            0x01 // [TEST GROUP]
@@ -152,6 +217,24 @@
 #define SUB_OPCODE_IMUL              0x05 // [TEST GROUP]
 #define SUB_OPCODE_DIV               0x06 // [TEST GROUP]
 #define SUB_OPCODE_IDIV              0x07 // [TEST GROUP]
+#define OPCODE_CLC                   0xF8 // 0xF8
+#define OPCODE_STC                   0xF9 // 0xF9
+#define OPCODE_CLI                   0xFA // 0xFA
+#define OPCODE_STI                   0xFB // 0xFB
+#define OPCODE_CLD                   0xFC // 0xFC
+#define OPCODE_STD                   0xFD // 0xFD
+#define OPCODE_INC_GROUP_RM8         0xFE // 0xFE
+#define SUB_OPCODE_INC               0x00 // [INC_8 GROUP]
+#define SUB_OPCODE_DEC               0x01 // [INC_8 GROUP]
+#define OPCODE_INC_GROUP_RM16_RM32   0xFF // 0xFF
+#define SUB_OPCODE_INC               0x00 // [INC_16_32 GROUP]
+#define SUB_OPCODE_DEC               0x01 // [INC_16_32 GROUP]
+#define SUB_OPCODE_CALL_NEAR         0x02 // [INC_16_32 GROUP]
+#define SUB_OPCODE_CALL_FAR          0x03 // [INC_16_32 GROUP]
+#define SUB_OPCODE_JMP_NEAR          0x04 // [INC_16_32 GROUP]
+#define SUB_OPCODE_JMP_FAR           0x05 // [INC_16_32 GROUP]
+#define SUB_OPCODE_PUSH              0x06 // [INC_16_32 GROUP]
+
 // Mode in Opcode Byte (RM)
 #define RM8_R8                       0x00
 #define RM16_R16                     0x01
@@ -205,7 +288,7 @@
 #define REG_ADDRESS16_BP_DI          0x03
 #define REG_ADDRESS16_SI             0x04
 #define REG_ADDRESS16_DI             0x05
-#define REG_ADDRESS16_BP             0x06 // small 1234h ????
+#define REG_ADDRESS16_BP             0x06
 #define REG_ADDRESS16_BX             0x07
 // Register Name (Segment Registers)
 #define REG_ES                       0x00
@@ -224,12 +307,17 @@
 #define REGSIZE_8                    0x00
 #define REGSIZE_16                   0x01
 #define REGSIZE_32                   0x02
-#define ADDRESSSIZE_16               0x03 // For 16-Bits Addressing
-#define SEGMENT_REG                  0x04 // For Segment Registers
+#define REGSIZE_64                   0x03
+#define ADDRESSSIZE_16               0x04 // For 16-Bits Addressing
+#define SEGMENT_REG                  0x05 // For Segment Registers
 // Index For InstructionDef::AddressHead
 #define ADDRESSHEAD_8                0x00 // byte ptr
 #define ADDRESSHEAD_16               0x01 // word ptr
 #define ADDRESSHEAD_32               0x02 // dword ptr
+#define ADDRESSHEAD_64               0x03 // qword ptr
+#define ADDRESSHEAD_F                0x04 // fword ptr
+#define ADDRESSHEAD_NULL             0x05 // (empty)
+#define ADDRESSHEAD_TBYTE            0x06 // tbyte ptr
 // Macros For Prasing MODR/M
 #define GET_MOD(A)                   (((A) >> 6) & 0x03)
 #define GET_OPCODE2(A)               (((A) >> 3) & 0x07)
@@ -245,8 +333,18 @@
 #define OPSIZE_8                     0x00
 #define OPSIZE_16                    0x01
 #define OPSIZE_32                    0x02
-#define OPSIZE_16_32                 0x03
-#define OPSIZE_ALL                   0x04
+#define OPSIZE_64                    0x03
+#define OPSIZE_16_32                 0x04
+#define OPSIZE_32_64                 0x05
+#define OPSIZE_8_16_32               0x06 // 8, 16/32
+#define OPSIZE_8_32_64               0x07 // 8, 32/64
+#define OPSIZE_F                     0x08
+#define OPSIZE_NULL                  0x09
+#define OPSIZE_TBYTE                 0x10
+
+#define UNSIGNED                     0x00
+#define SIGNED                       0x01
+#define EXTEND_I16_I32               0x02
 
 class InstructionDef
 {
@@ -257,6 +355,14 @@ private:
     static map<BYTE, string> SubOpcode_TestGroup;
     static map<BYTE, string> SubOpcode_AddGroup;
     static map<BYTE, string> SubOpcode_RolGroup;
+    static map<BYTE, string> SubOpcode_FaddGroup;
+    static map<BYTE, string> SubOpcode_FldGroup;
+    static map<BYTE, string> SubOpcode_Fld64Group;
+    static map<BYTE, string> SubOpcode_FiaddGroup;
+    static map<BYTE, string> SubOpcode_FildGroup;
+    static map<BYTE, string> SubOpcode_Fild16Group;
+    static map<BYTE, string> SubOpcode_Inc8Group;
+    static map<BYTE, string> SubOpcode_Inc16_32Group;
     static map<BYTE, string> Reg[5];
     static map<BYTE, string> AddressHead;
 public:
@@ -266,6 +372,14 @@ public:
     static map<BYTE, string> InitSubOpcode_TestGroup();
     static map<BYTE, string> InitSubOpcode_AddGroup();
     static map<BYTE, string> InitSubOpcode_RolGroup();
+    static map<BYTE, string> InitSubOpcode_FaddGroup();
+    static map<BYTE, string> InitSubOpcode_FldGroup();
+    static map<BYTE, string> InitSubOpcode_Fld64Group();
+    static map<BYTE, string> InitSubOpcode_FiaddGroup();
+    static map<BYTE, string> InitSubOpcode_FildGroup();
+    static map<BYTE, string> InitSubOpcode_Fild16Group();
+    static map<BYTE, string> InitSubOpcode_Inc8Group();
+    static map<BYTE, string> InitSubOpcode_Inc16_32Group();
     static map<BYTE, string> InitReg(BYTE GroupID);
     static map<BYTE, string> InitAddressHead();
     static map<BYTE, string>& GetPrefix(BYTE GroupID);
@@ -274,6 +388,14 @@ public:
     static map<BYTE, string>& GetSubOpcode_TestGroup();
     static map<BYTE, string>& GetSubOpcode_AddGroup();
     static map<BYTE, string>& GetSubOpcode_RolGroup();
+    static map<BYTE, string>& GetSubOpcode_FaddGroup();
+    static map<BYTE, string>& GetSubOpcode_FldGroup();
+    static map<BYTE, string>& GetSubOpcode_Fld64Group();
+    static map<BYTE, string>& GetSubOpcode_FiaddGroup();
+    static map<BYTE, string>& GetSubOpcode_FildGroup();
+    static map<BYTE, string>& GetSubOpcode_Fild16Group();
+    static map<BYTE, string>& GetSubOpcode_Inc8Group();
+    static map<BYTE, string>& GetSubOpcode_Inc16_32Group();
     static map<BYTE, string>& GetReg(BYTE GroupID);
     static map<BYTE, string>& GetAddressHead();
 };
