@@ -27,6 +27,7 @@
 /* Byte Order */
 #define UDASM_BIG_ENDIAN      0x00
 #define UDASM_LITTLE_ENDIAN   0x01
+#define UDASM_UNKNOWN_ENDIAN  0x02
 
 /* Exception Code */
 #define NO_PREFIX_CONFLICTION 0xFF
@@ -81,8 +82,8 @@ public:
     stringstream& GetBinStream();
     ifstream& GetExeFile();
     BYTE ReadByte();
-    WORD ReadWord();
-    DWORD ReadDWord();
+    WORD ReadWord(BYTE ByteOrder = UDASM_UNKNOWN_ENDIAN);
+    DWORD ReadDWord(BYTE ByteOrder = UDASM_UNKNOWN_ENDIAN);
     string FormatByte(BYTE CntByte, BYTE SMod = UNSIGNED);
     string FormatBinWord(WORD CntWord);
     string FormatAsmWord(WORD CntWord);

@@ -723,7 +723,18 @@ void DASM::INTEL_X86_Exec()
             case OPCODE_CALL_NEAR:
             case OPCODE_JMP_NEAR:
                 this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
-                this->GetAsmStream() << this->ParseImmediateOperand_I16_I32();
+                if (this->GetCPUMode() == CPU_MODE_16)
+                {
+                    I16 = this->ReadWord();
+                    TargetAddress = CntAddress + I16 + (DWORD)(this->GetExeFile().tellg() - InstructionStartPos);
+                    this->GetAsmStream() << this->FormatAsmWord(TargetAddress);
+                }
+                else if (this->GetCPUMode() == CPU_MODE_32)
+                {
+                    I32 = this->ReadDWord();
+                    TargetAddress = CntAddress + I32 + (DWORD)(this->GetExeFile().tellg() - InstructionStartPos);
+                    this->GetAsmStream() << this->FormatAsmDWord(TargetAddress);
+                }
                 break;
             case OPCODE_INC_GROUP_RM8:
                 MODRM = this->ReadByte();
@@ -932,24 +943,32 @@ BYTE DASM::ReadByte()
     return CntByte;
 }
 
-WORD DASM::ReadWord()
+WORD DASM::ReadWord(BYTE ByteOrder)
 {
     BYTE CntByte[2];
     for (int i = 0; i < 2; i++)
     {
         CntByte[i] = this->ReadByte();
     }
-    return MAKE_WORD(CntByte[0], CntByte[1]);
+    if (ByteOrder == UDASM_UNKNOWN_ENDIAN)
+    {
+        ByteOrder = this->GetDefaultByteOrder();
+    }
+    return ByteOrder == UDASM_BIG_ENDIAN ? MAKE_WORD(CntByte[0], CntByte[1]) : MAKE_WORD(CntByte[1], CntByte[0]);
 }
 
-DWORD DASM::ReadDWord()
+DWORD DASM::ReadDWord(BYTE ByteOrder)
 {
     WORD CntWord[2];
     for (int i = 0; i < 2; i++)
     {
-        CntWord[i] = this->ReadWord();
+        CntWord[i] = this->ReadWord(ByteOrder);
     }
-    return MAKE_DWORD_2(CntWord[0], CntWord[1]);
+    if (ByteOrder == UDASM_UNKNOWN_ENDIAN)
+    {
+        ByteOrder = this->GetDefaultByteOrder();
+    }
+    return ByteOrder == UDASM_BIG_ENDIAN ? MAKE_DWORD_2(CntWord[0], CntWord[1]) : MAKE_DWORD_2(CntWord[1], CntWord[0]);
 }
 
 string DASM::FormatByte(BYTE CntByte, BYTE SMod)
@@ -975,19 +994,9 @@ string DASM::FormatBinWord(WORD CntWord)
 
 string DASM::FormatAsmWord(WORD CntWord)
 {
-    string RetVal = "";
-    if (this->GetDefaultByteOrder() == UDASM_LITTLE_ENDIAN)
-    {
-        RetVal =
-        this->FormatByte(GET_2ND_BYTE_FROM_WORD(CntWord)) +
-        this->FormatByte(GET_1ST_BYTE_FROM_WORD(CntWord));
-    }
-    else if (this->GetDefaultByteOrder() == UDASM_BIG_ENDIAN)
-    {
-        RetVal =
-        this->FormatByte(GET_1ST_BYTE_FROM_WORD(CntWord)) +
-        this->FormatByte(GET_2ND_BYTE_FROM_WORD(CntWord));
-    }
+    string RetVal =
+    this->FormatByte(GET_1ST_BYTE_FROM_WORD(CntWord)) +
+    this->FormatByte(GET_2ND_BYTE_FROM_WORD(CntWord));
     return RetVal;
 }
 
@@ -1003,23 +1012,11 @@ string DASM::FormatBinDWord(DWORD CntDWord)
 
 string DASM::FormatAsmDWord(DWORD CntDWord)
 {
-    string RetVal = "";
-    if (this->GetDefaultByteOrder() == UDASM_LITTLE_ENDIAN)
-    {
-        RetVal =
-        this->FormatByte(GET_4TH_BYTE_FROM_DWORD(CntDWord)) +
-        this->FormatByte(GET_3RD_BYTE_FROM_DWORD(CntDWord)) +
-        this->FormatByte(GET_2ND_BYTE_FROM_DWORD(CntDWord)) +
-        this->FormatByte(GET_1ST_BYTE_FROM_DWORD(CntDWord));
-    }
-    else if (this->GetDefaultByteOrder() == UDASM_BIG_ENDIAN)
-    {
-        RetVal =
-        this->FormatByte(GET_1ST_BYTE_FROM_DWORD(CntDWord)) +
-        this->FormatByte(GET_2ND_BYTE_FROM_DWORD(CntDWord)) +
-        this->FormatByte(GET_3RD_BYTE_FROM_DWORD(CntDWord)) +
-        this->FormatByte(GET_4TH_BYTE_FROM_DWORD(CntDWord));
-    }
+    string RetVal =
+    this->FormatByte(GET_1ST_BYTE_FROM_DWORD(CntDWord)) +
+    this->FormatByte(GET_2ND_BYTE_FROM_DWORD(CntDWord)) +
+    this->FormatByte(GET_3RD_BYTE_FROM_DWORD(CntDWord)) +
+    this->FormatByte(GET_4TH_BYTE_FROM_DWORD(CntDWord));
     return RetVal;
 }
 
