@@ -16,11 +16,11 @@
 /* Instruction Prefix */
 // Group 1 (Repeat Prefix)
 #define REPEAT_PREFIX_LOCK           0xF0 // 0xF0
+#define REPEAT_PREFIX_REPNE          0xF2 // 0xF2
+#define REPEAT_PREFIX_REPNZ          0xF2
 #define REPEAT_PREFIX_REP            0xF3 // 0xF3
 #define REPEAT_PREFIX_REPE           0xF3
 #define REPEAT_PREFIX_REPZ           0xF3
-#define REPEAT_PREFIX_REPNE          0xF2 // 0xF2
-#define REPEAT_PREFIX_REPNZ          0xF2
 // Group 2 (Default Segment Register Switch)
 #define SEGMENT_PREFIX_ES            0x26 // 0x26
 #define SEGMENT_PREFIX_CS            0x2E // 0x2E
@@ -40,7 +40,8 @@
 #define OPCODE_POP_ES                0x07 // 0x07
 #define OPCODE_OR                    0x08 // 0x08 ~ 0x0D (+RM 5)
 #define OPCODE_PUSH_CS               0x0E // 0x0E
-#define OPCODE_POP_CS                0x0F // 0x0F
+#define OPCODE_MULTI_BYTE_OPCODE_0F  0x0F // 0x0F
+
 #define OPCODE_ADC                   0x10 // 0x10 ~ 0x15 (+RM 5)
 #define OPCODE_PUSH_SS               0x16 // 0x16
 #define OPCODE_POP_SS                0x17 // 0x17
@@ -94,7 +95,7 @@
 #define OPCODE_XCHG                  0x86 // 0x86 ~ 0x87 (+RM 2)
 #define OPCODE_MOV                   0x88 // 0x88 ~ 0x8C, 0x8E (+RM 1~4, 6)
 #define OPCODE_LEA                   0x8D // 0x8D
-#define OPCODE_UNDEFINED_8F          0x8F // 0x8F
+#define OPCODE_POP_RM16_RM32         0x8F // 0x8F
 #define OPCODE_NOP                   0x90 // 0x90
 #define OPCODE_XCHG_RAX_R            0x91 // 0x91 ~ 0x97
 #define OPCODE_CWDE                  0x98 // 0x98
@@ -126,10 +127,9 @@
 #define SUB_OPCODE_SAR               0x07 // [ROL GROUP]
 #define OPCODE_RETN_I16              0xC2 // 0xC2
 #define OPCODE_RETN                  0xC3 // 0xC3
-                                          // 0xC4
-                                          // 0xC5
-                                          // 0xC6
-                                          // 0xC7
+#define OPCODE_LES                   0xC4 // 0xC4
+#define OPCODE_LDS                   0xC5 // 0xC5
+#define OPCODE_MOV_RM_IMM            0xC6 // 0xC6 ~ 0xC7 (+RM 2)
 #define OPCODE_ENTER                 0xC8 // 0xC8
 #define OPCODE_LEAVE                 0xC9 // 0xC9
 #define OPCODE_RETF_I16              0xCA // 0xCA
@@ -234,6 +234,29 @@
 #define SUB_OPCODE_JMP_NEAR          0x04 // [INC_16_32 GROUP]
 #define SUB_OPCODE_JMP_FAR           0x05 // [INC_16_32 GROUP]
 #define SUB_OPCODE_PUSH              0x06 // [INC_16_32 GROUP]
+
+#define SECOND_OPCODE_JO             0x80
+#define SECOND_OPCODE_JNO            0x81
+#define SECOND_OPCODE_JB             0x82
+#define SECOND_OPCODE_JNB            0x83
+#define SECOND_OPCODE_JE             0x84
+#define SECOND_OPCODE_JNE            0x85
+#define SECOND_OPCODE_JBE            0x86
+#define SECOND_OPCODE_JA             0x87
+#define SECOND_OPCODE_JS             0x88
+#define SECOND_OPCODE_JNS            0x89
+#define SECOND_OPCODE_JPE            0x8A
+#define SECOND_OPCODE_JPO            0x8B
+#define SECOND_OPCODE_JL             0x8C
+#define SECOND_OPCODE_JGE            0x8D
+#define SECOND_OPCODE_JLE            0x8E
+#define SECOND_OPCODE_JG             0x8F
+/*#define SECOND_OPCODE_
+#define SECOND_OPCODE_
+#define SECOND_OPCODE_
+#define SECOND_OPCODE_
+#define SECOND_OPCODE_*/
+
 
 // Mode in Opcode Byte (RM)
 #define RM8_R8                       0x00
@@ -352,6 +375,7 @@ private:
     static map<BYTE, string> Prefix[4];
     static map<BYTE, string> SinglePrefixName;
     static map<BYTE, string> Opcode;
+    static map<BYTE, string> SecondOpcode;
     static map<BYTE, string> SubOpcode_TestGroup;
     static map<BYTE, string> SubOpcode_AddGroup;
     static map<BYTE, string> SubOpcode_RolGroup;
@@ -363,12 +387,13 @@ private:
     static map<BYTE, string> SubOpcode_Fild16Group;
     static map<BYTE, string> SubOpcode_Inc8Group;
     static map<BYTE, string> SubOpcode_Inc16_32Group;
-    static map<BYTE, string> Reg[5];
+    static map<BYTE, string> Reg[6];
     static map<BYTE, string> AddressHead;
 public:
     static map<BYTE, string> InitPrefix(BYTE GroupID);
     static map<BYTE, string> InitSinglePrefixName();
     static map<BYTE, string> InitOpcode();
+    static map<BYTE, string> InitSecondOpcode();
     static map<BYTE, string> InitSubOpcode_TestGroup();
     static map<BYTE, string> InitSubOpcode_AddGroup();
     static map<BYTE, string> InitSubOpcode_RolGroup();
@@ -385,6 +410,7 @@ public:
     static map<BYTE, string>& GetPrefix(BYTE GroupID);
     static map<BYTE, string>& GetSinglePrefixName();
     static map<BYTE, string>& GetOpcode();
+    static map<BYTE, string>& GetSecondOpcode();
     static map<BYTE, string>& GetSubOpcode_TestGroup();
     static map<BYTE, string>& GetSubOpcode_AddGroup();
     static map<BYTE, string>& GetSubOpcode_RolGroup();

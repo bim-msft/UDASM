@@ -15,18 +15,18 @@ map<BYTE, string> InstructionDef::InitPrefix(BYTE GroupID)
         case 0:
             RetVal[REPEAT_PREFIX_LOCK] = "lock";
             RetVal[REPEAT_PREFIX_REP] = "rep";
-            RetVal[REPEAT_PREFIX_REPE] = "repe";
-            RetVal[REPEAT_PREFIX_REPZ] = "repz";
+            //RetVal[REPEAT_PREFIX_REPE] = "repe";
+            //RetVal[REPEAT_PREFIX_REPZ] = "repz";
             RetVal[REPEAT_PREFIX_REPNE] = "repne";
-            RetVal[REPEAT_PREFIX_REPNZ] = "repnz";
+            //RetVal[REPEAT_PREFIX_REPNZ] = "repnz";
             break;
         case 1:
-            RetVal[SEGMENT_PREFIX_ES] = "es";
-            RetVal[SEGMENT_PREFIX_CS] = "cs";
-            RetVal[SEGMENT_PREFIX_SS] = "ss";
-            RetVal[SEGMENT_PREFIX_DS] = "ds";
-            RetVal[SEGMENT_PREFIX_FS] = "fs";
-            RetVal[SEGMENT_PREFIX_GS] = "gs";
+            RetVal[SEGMENT_PREFIX_ES] = "";
+            RetVal[SEGMENT_PREFIX_CS] = "";
+            RetVal[SEGMENT_PREFIX_SS] = "";
+            RetVal[SEGMENT_PREFIX_DS] = "";
+            RetVal[SEGMENT_PREFIX_FS] = "";
+            RetVal[SEGMENT_PREFIX_GS] = "";
             break;
         case 2:
             RetVal[OPERAND_PREFIX] = "";
@@ -68,7 +68,7 @@ map<BYTE, string> InstructionDef::InitOpcode()
     RetVal[OPCODE_POP_ES] = "pop";
     RetVal[OPCODE_OR] = "or";
     RetVal[OPCODE_PUSH_CS] = "push";
-    RetVal[OPCODE_POP_CS] = "pop";
+    
     RetVal[OPCODE_ADC] = "adc";
     RetVal[OPCODE_PUSH_SS] = "push";
     RetVal[OPCODE_POP_SS] = "pop";
@@ -113,7 +113,7 @@ map<BYTE, string> InstructionDef::InitOpcode()
     RetVal[OPCODE_XCHG] = "xchg";
     RetVal[OPCODE_MOV] = "mov";
     RetVal[OPCODE_LEA] = "lea";
-    RetVal[OPCODE_UNDEFINED_8F] = "(undefined command)";
+    RetVal[OPCODE_POP_RM16_RM32] = "pop";
     RetVal[OPCODE_NOP] = "nop";
     RetVal[OPCODE_XCHG_RAX_R] = "xchg";
     RetVal[OPCODE_CWDE] = "cwde";
@@ -134,6 +134,9 @@ map<BYTE, string> InstructionDef::InitOpcode()
     RetVal[OPCODE_MOV_R_IMM] = "mov";
     RetVal[OPCODE_RETN_I16] = "retn";
     RetVal[OPCODE_RETN] = "retn";
+    RetVal[OPCODE_LES] = "les";
+    RetVal[OPCODE_LDS] = "lds";
+    RetVal[OPCODE_MOV_RM_IMM] = "mov";
     RetVal[OPCODE_ENTER] = "enter";
     RetVal[OPCODE_LEAVE] = "leave";
     RetVal[OPCODE_RETF_I16] = "retf";
@@ -157,7 +160,38 @@ map<BYTE, string> InstructionDef::InitOpcode()
     RetVal[OPCODE_JMP_FAR] = "jmp";
     RetVal[OPCODE_JMP] = "jmp";
     RetVal[OPCODE_IN_DX] = "in";
-    RetVal[OPCODE_OUT_DX] = "dx";
+    RetVal[OPCODE_OUT_DX] = "out";
+    RetVal[OPCODE_INT1] = "int1";
+    RetVal[OPCODE_HLT] = "hlt";
+    RetVal[OPCODE_CMC] = "cmc";
+    RetVal[OPCODE_CLC] = "clc";
+    RetVal[OPCODE_STC] = "stc";
+    RetVal[OPCODE_CLI] = "cli";
+    RetVal[OPCODE_STI] = "sti";
+    RetVal[OPCODE_CLD] = "cld";
+    RetVal[OPCODE_STD] = "std";
+    return RetVal;
+}
+
+map<BYTE, string> InstructionDef::InitSecondOpcode()
+{
+    map<BYTE, string> RetVal;
+    RetVal[SECOND_OPCODE_JO] = "jo";
+    RetVal[SECOND_OPCODE_JNO] = "jno";
+    RetVal[SECOND_OPCODE_JB] = "jb";
+    RetVal[SECOND_OPCODE_JNB] = "jnb";
+    RetVal[SECOND_OPCODE_JE] = "je";
+    RetVal[SECOND_OPCODE_JNE] = "jne";
+    RetVal[SECOND_OPCODE_JBE] = "jbe";
+    RetVal[SECOND_OPCODE_JA] = "ja";
+    RetVal[SECOND_OPCODE_JS] = "js";
+    RetVal[SECOND_OPCODE_JNS] = "jns";
+    RetVal[SECOND_OPCODE_JPE] = "jpe";
+    RetVal[SECOND_OPCODE_JPO] = "jpo";
+    RetVal[SECOND_OPCODE_JL] = "jl";
+    RetVal[SECOND_OPCODE_JGE] = "jge";
+    RetVal[SECOND_OPCODE_JLE] = "jle";
+    RetVal[SECOND_OPCODE_JG] = "jg";
     return RetVal;
 }
 
@@ -393,6 +427,11 @@ map<BYTE, string>& InstructionDef::GetOpcode()
     return InstructionDef::Opcode;
 }
 
+map<BYTE, string>& InstructionDef::GetSecondOpcode()
+{
+    return InstructionDef::SecondOpcode;
+}
+
 map<BYTE, string>& InstructionDef::GetSubOpcode_TestGroup()
 {
     return InstructionDef::SubOpcode_TestGroup;
@@ -461,6 +500,7 @@ map<BYTE, string>& InstructionDef::GetAddressHead()
 map<BYTE, string> InstructionDef::Prefix[4];
 map<BYTE, string> InstructionDef::SinglePrefixName;
 map<BYTE, string> InstructionDef::Opcode;
+map<BYTE, string> InstructionDef::SecondOpcode;
 map<BYTE, string> InstructionDef::SubOpcode_TestGroup;
 map<BYTE, string> InstructionDef::SubOpcode_AddGroup;
 map<BYTE, string> InstructionDef::SubOpcode_RolGroup;
@@ -472,7 +512,7 @@ map<BYTE, string> InstructionDef::SubOpcode_FildGroup;
 map<BYTE, string> InstructionDef::SubOpcode_Fild16Group;
 map<BYTE, string> InstructionDef::SubOpcode_Inc8Group;
 map<BYTE, string> InstructionDef::SubOpcode_Inc16_32Group;
-map<BYTE, string> InstructionDef::Reg[5];
+map<BYTE, string> InstructionDef::Reg[6];
 map<BYTE, string> InstructionDef::AddressHead;
 
 

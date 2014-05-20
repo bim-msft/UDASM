@@ -63,6 +63,7 @@ void DASM::INTEL_X86_Init()
     }
     InstructionDef::GetSinglePrefixName() = InstructionDef::InitSinglePrefixName();
     InstructionDef::GetOpcode() = InstructionDef::InitOpcode();
+    InstructionDef::GetSecondOpcode() = InstructionDef::InitSecondOpcode();
     InstructionDef::GetSubOpcode_TestGroup() = InstructionDef::InitSubOpcode_TestGroup();
     InstructionDef::GetSubOpcode_AddGroup() = InstructionDef::InitSubOpcode_AddGroup();
     InstructionDef::GetSubOpcode_RolGroup() = InstructionDef::InitSubOpcode_RolGroup();
@@ -394,7 +395,6 @@ void DASM::INTEL_X86_Exec()
                 this->GetAsmStream() << InstructionDef::GetReg(SEGMENT_REG)[REG_ES];
                 break;
             case OPCODE_PUSH_CS:
-            case OPCODE_POP_CS:
                 this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
                 this->GetAsmStream() << InstructionDef::GetReg(SEGMENT_REG)[REG_CS];
                 break;
@@ -511,6 +511,24 @@ void DASM::INTEL_X86_Exec()
                 this->GetAsmStream() << InstructionDef::GetOpcode()[OPCODE_XCHG_RAX_R] << " ";
                 this->GetAsmStream() << InstructionDef::GetReg(this->GetCPUMode())[REG_EAX_32] << ", " << InstructionDef::GetReg(this->GetCPUMode())[GET_RM(CntByte)];
                 break;
+            case OPCODE_LEA:
+                this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
+                MODRM = this->ReadByte();
+                this->GetAsmStream() << this->ParseRegisterOperand(CntByte, GET_REG(MODRM)) << ", " << this->ParseMODRM_RM(CntByte, MODRM, OPSIZE_NULL);
+                break;
+            case OPCODE_POP_RM16_RM32:
+                MODRM = this->ReadByte();
+                switch (GET_OPCODE2(MODRM)) {
+                    case 0x00:
+                        this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
+                        this->GetAsmStream() << this->ParseMODRM_RM(CntByte, MODRM);
+                        break;
+                    default:
+                        this->GetAsmStream() << "???";
+                        this->ExeFile.seekg(this->ExeFile.tellg() - 1LL);
+                        break;
+                }
+                break;
             case OPCODE_CALL_FAR:
             case OPCODE_JMP_FAR:
                 this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
@@ -595,10 +613,34 @@ void DASM::INTEL_X86_Exec()
                 this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
                 this->GetAsmStream() << this->ParseImmediateOperand_I16();
                 break;
-            case OPCODE_LEA:
+            case OPCODE_LES:
+            case OPCODE_LDS:
                 this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
                 MODRM = this->ReadByte();
-                this->GetAsmStream() << this->ParseRegisterOperand(CntByte, GET_REG(MODRM)) << ", " << this->ParseMODRM_RM(CntByte, MODRM, OPSIZE_NULL);
+                if (this->GetCPUMode() == CPU_MODE_16)
+                {
+                    this->GetAsmStream() << InstructionDef::GetReg(REGSIZE_16)[GET_REG(MODRM)] << ", " << this->ParseMemoryOperand(CntByte, MODRM, OPSIZE_32);
+                }
+                else if (this->GetCPUMode() == CPU_MODE_32)
+                {
+                    this->GetAsmStream() << InstructionDef::GetReg(REGSIZE_32)[GET_REG(MODRM)] << ", " << this->ParseMemoryOperand(CntByte, MODRM, OPSIZE_F);
+                }
+                break;
+            case OPCODE_MOV_RM_IMM + RM8_R8:
+            case OPCODE_MOV_RM_IMM + RM16_R16:
+                MODRM = this->ReadByte();
+                switch (GET_OPCODE2(MODRM)) {
+                    case 0x00:
+                        this->GetAsmStream() << InstructionDef::GetOpcode()[OPCODE_MOV_RM_IMM] << " ";
+                        this->GetAsmStream() << this->ParseMODRM_RM_IMM(CntByte, MODRM);
+                        break;
+                    default:
+                        this->GetAsmStream() << "???";
+                        this->ExeFile.seekg(this->ExeFile.tellg() - 1LL);
+                        this->StringStreamClear(this->GetBinStream());
+                        this->GetBinStream() << this->FormatByte(CntByte) << " ";
+                        break;
+                }
                 break;
             case OPCODE_ENTER:
                 this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
@@ -616,7 +658,7 @@ void DASM::INTEL_X86_Exec()
                 break;
             case OPCODE_XLAT:
                 this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte] << " ";
-                this->GetAsmStream() << "byte ptr [" << InstructionDef::GetReg(this->GetAddressMode())[REG_EBX_32] << " + al]";
+                this->GetAsmStream() << InstructionDef::GetAddressHead()[ADDRESSHEAD_8] << " [" << InstructionDef::GetReg(this->GetAddressMode())[REG_EBX_32] << " + al]";
                 break;
             case OPCODE_FADD_GROUP:
             case OPCODE_FADD_GROUP | 0x04:
@@ -626,43 +668,55 @@ void DASM::INTEL_X86_Exec()
                 break;
             case OPCODE_FLD_GROUP_RM32:
                 MODRM = this->ReadByte();
-                this->GetAsmStream() << InstructionDef::GetSubOpcode_FldGroup()[GET_OPCODE2(MODRM)] << " ";
                 switch (GET_OPCODE2(MODRM)) {
                     case SUB_OPCODE_FLDENV:
                     case SUB_OPCODE_FSTENV:
+                        this->GetAsmStream() << InstructionDef::GetSubOpcode_FldGroup()[GET_OPCODE2(MODRM)] << " ";
                         this->GetAsmStream() << this->ParseMODRM_RM(CntByte, MODRM, OPSIZE_NULL);
                         break;
                     case SUB_OPCODE_FLD:
                     case SUB_OPCODE_FST:
                     case SUB_OPCODE_FSTP:
+                        this->GetAsmStream() << InstructionDef::GetSubOpcode_FldGroup()[GET_OPCODE2(MODRM)] << " ";
                         this->GetAsmStream() << this->ParseMODRM_RM(CntByte, MODRM, OPSIZE_32);
                         break;
                     case SUB_OPCODE_FLDCW:
                     case SUB_OPCODE_FSTCW:
+                        this->GetAsmStream() << InstructionDef::GetSubOpcode_FldGroup()[GET_OPCODE2(MODRM)] << " ";
                         this->GetAsmStream() << this->ParseMODRM_RM(CntByte, MODRM, OPSIZE_16);
                         break;
                     default:
+                        this->GetAsmStream() << "???";
+                        this->GetExeFile().seekg(this->GetExeFile().tellg() + 1LL);
+                        this->StringStreamClear(this->GetBinStream());
+                        this->GetBinStream() << this->FormatByte(CntByte) << " ";
                         break;
                 }
                 break;
             case OPCODE_FLD_GROUP_RM64:
                 MODRM = this->ReadByte();
-                this->GetAsmStream() << InstructionDef::GetSubOpcode_Fld64Group()[GET_OPCODE2(MODRM)] << " ";
                 switch (GET_OPCODE2(MODRM)) {
                     case SUB_OPCODE_FRSTOR:
                     case SUB_OPCODE_FSAVE:
+                        this->GetAsmStream() << InstructionDef::GetSubOpcode_Fld64Group()[GET_OPCODE2(MODRM)] << " ";
                         this->GetAsmStream() << this->ParseMODRM_RM(CntByte, MODRM, OPSIZE_NULL);
                         break;
                     case SUB_OPCODE_FLD:
                     case SUB_OPCODE_FISTTP:
                     case SUB_OPCODE_FST:
                     case SUB_OPCODE_FSTP:
+                        this->GetAsmStream() << InstructionDef::GetSubOpcode_Fld64Group()[GET_OPCODE2(MODRM)] << " ";
                         this->GetAsmStream() << this->ParseMODRM_RM(CntByte, MODRM, OPSIZE_64);
                         break;
                     case SUB_OPCODE_FSTSW:
+                        this->GetAsmStream() << InstructionDef::GetSubOpcode_Fld64Group()[GET_OPCODE2(MODRM)] << " ";
                         this->GetAsmStream() << this->ParseMODRM_RM(CntByte, MODRM, OPSIZE_16);
                         break;
                     default:
+                        this->GetAsmStream() << "???";
+                        this->GetExeFile().seekg(this->GetExeFile().tellg() + 1LL);
+                        this->StringStreamClear(this->GetBinStream());
+                        this->GetBinStream() << this->FormatByte(CntByte) << " ";
                         break;
                 }
                 break;
@@ -727,13 +781,13 @@ void DASM::INTEL_X86_Exec()
                 {
                     I16 = this->ReadWord();
                     TargetAddress = CntAddress + I16 + (DWORD)(this->GetExeFile().tellg() - InstructionStartPos);
-                    this->GetAsmStream() << this->FormatAsmWord(TargetAddress);
+                    this->GetAsmStream() << this->FormatAsmWord(TargetAddress) << "h";
                 }
                 else if (this->GetCPUMode() == CPU_MODE_32)
                 {
                     I32 = this->ReadDWord();
                     TargetAddress = CntAddress + I32 + (DWORD)(this->GetExeFile().tellg() - InstructionStartPos);
-                    this->GetAsmStream() << this->FormatAsmDWord(TargetAddress);
+                    this->GetAsmStream() << this->FormatAsmDWord(TargetAddress) << "h";
                 }
                 break;
             case OPCODE_INC_GROUP_RM8:
@@ -743,20 +797,25 @@ void DASM::INTEL_X86_Exec()
                 break;
             case OPCODE_INC_GROUP_RM16_RM32:
                 MODRM = this->ReadByte();
-                this->GetAsmStream() << InstructionDef::GetSubOpcode_Inc16_32Group()[GET_OPCODE2(MODRM)] << " ";
                 switch (GET_OPCODE2(MODRM)) {
                     case SUB_OPCODE_INC:
                     case SUB_OPCODE_DEC:
                     case SUB_OPCODE_CALL_NEAR:
                     case SUB_OPCODE_JMP_NEAR:
                     case SUB_OPCODE_PUSH:
+                        this->GetAsmStream() << InstructionDef::GetSubOpcode_Inc16_32Group()[GET_OPCODE2(MODRM)] << " ";
                         this->GetAsmStream() << this->ParseMODRM_RM(CntByte, MODRM, OPSIZE_16_32);
                         break;
                     case SUB_OPCODE_CALL_FAR:
                     case SUB_OPCODE_JMP_FAR:
+                        this->GetAsmStream() << InstructionDef::GetSubOpcode_Inc16_32Group()[GET_OPCODE2(MODRM)] << " ";
                         this->GetAsmStream() << "far " << this->ParseMODRM_RM(CntByte, MODRM, OPSIZE_32);
                         break;
                     default:
+                        this->GetAsmStream() << "???";
+                        this->GetExeFile().seekg(this->GetExeFile().tellg() - 1LL);
+                        this->StringStreamClear(this->GetBinStream());
+                        this->GetBinStream() << this->FormatByte(CntByte) << " ";
                         break;
                 }
                 break;
@@ -765,7 +824,6 @@ void DASM::INTEL_X86_Exec()
             case OPCODE_AAA:
             case OPCODE_AAS:
             case OPCODE_NOP:
-            case OPCODE_UNDEFINED_8F:
             case OPCODE_CWDE:
             case OPCODE_CDQ:
             case OPCODE_WAIT:
@@ -790,6 +848,48 @@ void DASM::INTEL_X86_Exec()
             case OPCODE_CLD:
             case OPCODE_STD:
                 this->GetAsmStream() << InstructionDef::GetOpcode()[CntByte];
+                break;
+            case OPCODE_MULTI_BYTE_OPCODE_0F:
+                CntByte = this->ReadByte();
+                switch (CntByte) {
+                    case SECOND_OPCODE_JO:
+                    case SECOND_OPCODE_JNO:
+                    case SECOND_OPCODE_JB:
+                    case SECOND_OPCODE_JNB:
+                    case SECOND_OPCODE_JE:
+                    case SECOND_OPCODE_JNE:
+                    case SECOND_OPCODE_JBE:
+                    case SECOND_OPCODE_JA:
+                    case SECOND_OPCODE_JS:
+                    case SECOND_OPCODE_JNS:
+                    case SECOND_OPCODE_JPE:
+                    case SECOND_OPCODE_JPO:
+                    case SECOND_OPCODE_JL:
+                    case SECOND_OPCODE_JGE:
+                    case SECOND_OPCODE_JLE:
+                    case SECOND_OPCODE_JG:
+                        this->GetAsmStream() << InstructionDef::GetSecondOpcode()[CntByte] << " ";
+                        if (this->GetCPUMode() == CPU_MODE_16)
+                        {
+                            I16 = this->ReadWord();
+                            TargetAddress = CntAddress + I16 + (DWORD)(this->GetExeFile().tellg() - InstructionStartPos);
+                            this->GetAsmStream() << this->FormatAsmWord(TargetAddress) << "h";
+                        }
+                        else if (this->GetCPUMode() == CPU_MODE_32)
+                        {
+                            I32 = this->ReadDWord();
+                            TargetAddress = CntAddress + I32 + (DWORD)(this->GetExeFile().tellg() - InstructionStartPos);
+                            this->GetAsmStream() << this->FormatAsmDWord(TargetAddress) << "h";
+                        }
+                        break;
+                        
+                    default:
+                        this->GetAsmStream() << "???";
+                        this->GetExeFile().seekg(this->GetExeFile().tellg() - 1LL);
+                        this->StringStreamClear(this->GetBinStream());
+                        this->GetBinStream() << this->FormatByte(CntByte) << " ";
+                        break;
+                }
                 break;
             default:
                 this->GetAsmStream() << "???";
@@ -1061,7 +1161,7 @@ string DASM::ParseMemoryOperand(BYTE Opcode, BYTE MODRM, BYTE OpSize)
             Operand += (GET_W_BIT(Opcode) == 0x00 ? InstructionDef::GetAddressHead()[ADDRESSHEAD_8] : InstructionDef::GetAddressHead()[this->GetCPUMode()]) + " ";
             break;
     }
-    
+    BYTE I8;
     switch (this->GetAddressMode()) {
         case ADDRESS_MODE_16: // 16 Bits Addressing
             Operand += "[";
@@ -1101,6 +1201,9 @@ string DASM::ParseMemoryOperand(BYTE Opcode, BYTE MODRM, BYTE OpSize)
                     }
                     switch (MOD) {
                         case MOD_M_DISPLACEMENT_8:
+                            I8 = this->ReadByte();
+                            Operand += (GET_1ST_BIT(I8) ? " - " + this->FormatByte(~I8 + 1) : " + " + this->FormatByte(I8)) + "h";
+                            break;
                         case MOD_M_DISPLACEMENT_16_32:
                             Operand += " + " + this->ParseDisplacement(MOD);
                             break;
@@ -1113,6 +1216,9 @@ string DASM::ParseMemoryOperand(BYTE Opcode, BYTE MODRM, BYTE OpSize)
                     Operand += "[" + InstructionDef::GetReg(REGSIZE_32)[RM];
                     switch (MOD) {
                         case MOD_M_DISPLACEMENT_8:
+                            I8 = this->ReadByte();
+                            Operand += (GET_1ST_BIT(I8) ? " - " + this->FormatByte(~I8 + 1) : " + " + this->FormatByte(I8)) + "h";
+                            break;
                         case MOD_M_DISPLACEMENT_16_32:
                             Operand += " + " + this->ParseDisplacement(MOD);
                             break;
