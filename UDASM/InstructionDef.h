@@ -235,6 +235,7 @@
 #define SUB_OPCODE_JMP_FAR           0x05 // [INC_16_32 GROUP]
 #define SUB_OPCODE_PUSH              0x06 // [INC_16_32 GROUP]
 
+/* Second Opcode (0FXX) */
 #define SECOND_OPCODE_JO             0x80
 #define SECOND_OPCODE_JNO            0x81
 #define SECOND_OPCODE_JB             0x82
@@ -251,11 +252,50 @@
 #define SECOND_OPCODE_JGE            0x8D
 #define SECOND_OPCODE_JLE            0x8E
 #define SECOND_OPCODE_JG             0x8F
-/*#define SECOND_OPCODE_
-#define SECOND_OPCODE_
-#define SECOND_OPCODE_
-#define SECOND_OPCODE_
-#define SECOND_OPCODE_*/
+
+#define SECOND_OPCODE_SETO           0x90
+#define SECOND_OPCODE_SETNO          0x91
+#define SECOND_OPCODE_SETB           0x92
+#define SECOND_OPCODE_SETNB          0x93
+#define SECOND_OPCODE_SETE           0x94
+#define SECOND_OPCODE_SETNE          0x95
+#define SECOND_OPCODE_SETBE          0x96
+#define SECOND_OPCODE_SETA           0x97
+#define SECOND_OPCODE_SETS           0x98
+#define SECOND_OPCODE_SETNS          0x99
+#define SECOND_OPCODE_SETPE          0x9A
+#define SECOND_OPCODE_SETPO          0x9B
+#define SECOND_OPCODE_SETL           0x9C
+#define SECOND_OPCODE_SETGE          0x9D
+#define SECOND_OPCODE_SETLE          0x9E
+#define SECOND_OPCODE_SETG           0x9F
+
+#define SECOND_OPCODE_PUSH_FS        0xA0
+#define SECOND_OPCODE_POP_FS         0xA1
+#define SECOND_OPCODE_CPUID          0xA2
+#define SECOND_OPCODE_BT             0xA3
+#define SECOND_OPCODE_SHLD_I8        0xA4
+#define SECOND_OPCODE_SHLD_CL        0xA5
+#define SECOND_OPCODE_PUSH_GS        0xA8
+#define SECOND_OPCODE_POP_GS         0xA9
+#define SECOND_OPCODE_RSM            0xAA
+#define SECOND_OPCODE_BTS            0xAB
+#define SECOND_OPCODE_SHRD_I8        0xAC
+#define SECOND_OPCODE_SHRD_CL        0xAD
+#define SECOND_OPCODE_FXSAVE         0xAE
+#define SECOND_OPCODE_IMUL           0xAF
+
+#define SECOND_OPCODE_CMPXCHG        0xB0 // 0xB0 ~ 0xB1 (+RM 2)
+#define SECOND_OPCODE_LSS            0xB2
+#define SECOND_OPCODE_BTR            0xB3
+#define SECOND_OPCODE_LFS            0xB4
+#define SECOND_OPCODE_LGS            0xB5
+#define SECOND_OPCODE_MOVZX          0xB6 // 0xB6 ~ 0xB7 (+RM 2)
+#define SECOND_OPCODE_UD1            0xB9
+#define SECOND_OPCODE_BTC            0xBB
+#define SECOND_OPCODE_BSF            0xBC
+#define SECOND_OPCODE_BSR            0xBD
+#define SECOND_OPCODE_MOVSX          0xBE // 0xBE ~ 0xBF (+RM 2)
 
 
 // Mode in Opcode Byte (RM)
@@ -322,10 +362,17 @@
 #define REG_GS                       0x05
 #define REG_SEG6                     0x06
 #define REG_SEG7                     0x07
+
+#define REG_NULL                     0xFF
 // Special Values For RM
-#define RM_SIB_FLAG                  0x04 // Only For 32-Bits Addressing Mode 
+#define RM_SIB_FLAG                  0x04 // Only For 32-Bits Addressing Mode
+
 #define RM_ONLY_DISPLACEMENT_32_FLAG 0x05 // Only When AddressMode == 32 Bits && Mod == MOD_M_NO_DISPLACEMENT(0x00)
 #define RM_ONLY_DISPLACEMENT_16_FLAG 0x06 // Only When AddressMode == 16 Bits && Mod == MOD_M_NO_DISPLACEMENT(0x00)
+
+// Special Values For SIB.Base
+#define SIB_NO_BASE_FLAG             0x05
+
 // Index For InstructionDef::Reg
 #define REGSIZE_8                    0x00
 #define REGSIZE_16                   0x01
@@ -333,6 +380,8 @@
 #define REGSIZE_64                   0x03
 #define ADDRESSSIZE_16               0x04 // For 16-Bits Addressing
 #define SEGMENT_REG                  0x05 // For Segment Registers
+#define FLOAT_REG                    0x06 // For Float Registers
+
 // Index For InstructionDef::AddressHead
 #define ADDRESSHEAD_8                0x00 // byte ptr
 #define ADDRESSHEAD_16               0x01 // word ptr
@@ -364,6 +413,7 @@
 #define OPSIZE_F                     0x08
 #define OPSIZE_NULL                  0x09
 #define OPSIZE_TBYTE                 0x10
+#define OPSIZE_SEGR                  0x11
 
 #define UNSIGNED                     0x00
 #define SIGNED                       0x01
@@ -387,7 +437,7 @@ private:
     static map<BYTE, string> SubOpcode_Fild16Group;
     static map<BYTE, string> SubOpcode_Inc8Group;
     static map<BYTE, string> SubOpcode_Inc16_32Group;
-    static map<BYTE, string> Reg[6];
+    static map<BYTE, string> Reg[7];
     static map<BYTE, string> AddressHead;
 public:
     static map<BYTE, string> InitPrefix(BYTE GroupID);

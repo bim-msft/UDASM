@@ -41,5 +41,7 @@ typedef unsigned int DWORD;
 #define GET_7TH_BIT(A) (((A) >> 1) & 0x01)
 #define GET_8TH_BIT(A) ((A) & 0x01)
 
+#define NULL_STR ""
+
 
 #endif
