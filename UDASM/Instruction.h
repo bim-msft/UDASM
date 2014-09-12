@@ -9,7 +9,7 @@
 #ifndef __UDASM__Instruction__
 #define __UDASM__Instruction__
 
-#include "InstructionDef.h"
+#include "Intelx86Def.h"
 
 #define NULL_VAL 0x00
 

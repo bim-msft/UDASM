@@ -11,7 +11,7 @@
 		DF7A4A8D190FDBF800453AEA /* UDASM.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = DF7A4A8C190FDBF800453AEA /* UDASM.1 */; };
 		DF7A4A95190FDC5700453AEA /* DASM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF7A4A93190FDC5700453AEA /* DASM.cpp */; };
 		DF7A4A98190FDE3F00453AEA /* Instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF7A4A96190FDE3F00453AEA /* Instruction.cpp */; };
-		DF7A4A9F190FFBCF00453AEA /* InstructionDef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF7A4A9D190FFBCF00453AEA /* InstructionDef.cpp */; };
+		DF7A4A9F190FFBCF00453AEA /* Intelx86Def.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF7A4A9D190FFBCF00453AEA /* Intelx86Def.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -36,8 +36,8 @@
 		DF7A4A96190FDE3F00453AEA /* Instruction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Instruction.cpp; sourceTree = "<group>"; };
 		DF7A4A97190FDE3F00453AEA /* Instruction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Instruction.h; sourceTree = "<group>"; };
 		DF7A4A99190FDF2400453AEA /* BaseDef.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseDef.h; sourceTree = "<group>"; };
-		DF7A4A9D190FFBCF00453AEA /* InstructionDef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InstructionDef.cpp; sourceTree = "<group>"; };
-		DF7A4A9E190FFBCF00453AEA /* InstructionDef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InstructionDef.h; sourceTree = "<group>"; };
+		DF7A4A9D190FFBCF00453AEA /* Intelx86Def.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Intelx86Def.cpp; sourceTree = "<group>"; };
+		DF7A4A9E190FFBCF00453AEA /* Intelx86Def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Intelx86Def.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,8 +75,8 @@
 				DF7A4A94190FDC5700453AEA /* DASM.h */,
 				DF7A4A96190FDE3F00453AEA /* Instruction.cpp */,
 				DF7A4A97190FDE3F00453AEA /* Instruction.h */,
-				DF7A4A9D190FFBCF00453AEA /* InstructionDef.cpp */,
-				DF7A4A9E190FFBCF00453AEA /* InstructionDef.h */,
+				DF7A4A9D190FFBCF00453AEA /* Intelx86Def.cpp */,
+				DF7A4A9E190FFBCF00453AEA /* Intelx86Def.h */,
 				DF7A4A8A190FDBF800453AEA /* main.cpp */,
 				DF7A4A8C190FDBF800453AEA /* UDASM.1 */,
 			);
@@ -134,7 +134,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DF7A4A9F190FFBCF00453AEA /* InstructionDef.cpp in Sources */,
+				DF7A4A9F190FFBCF00453AEA /* Intelx86Def.cpp in Sources */,
 				DF7A4A95190FDC5700453AEA /* DASM.cpp in Sources */,
 				DF7A4A8B190FDBF800453AEA /* main.cpp in Sources */,
 				DF7A4A98190FDE3F00453AEA /* Instruction.cpp in Sources */,
@@ -247,6 +247,7 @@
 				DF7A4A92190FDBF800453AEA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

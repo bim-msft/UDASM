@@ -75,19 +75,19 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "&quot;/Users/uranux/Frozen Throne.exe&quot;"
+            argument = "&quot;/Users/uranux/putty.exe&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "&quot;/Users/uranux/Frozen Throne.addr&quot;"
+            argument = "&quot;/Users/uranux/putty.addr&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "&quot;/Users/uranux/Frozen Throne.bin&quot;"
+            argument = "&quot;/Users/uranux/putty.bin&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "&quot;/Users/uranux/Frozen Throne.asm&quot;"
+            argument = "&quot;/Users/uranux/putty.asm&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -99,7 +99,11 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "24810"
+            argument = "356273"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "4096"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

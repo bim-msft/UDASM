@@ -9,7 +9,7 @@
 #ifndef __UDASM__DASM__
 #define __UDASM__DASM__
 
-#include "InstructionDef.h"
+#include "Intelx86Def.h"
 #include "Instruction.h"
 
 /* Hardware Arch */
@@ -50,16 +50,17 @@ private:
     stringstream AddrStream;
     stringstream AsmStream;
     stringstream BinStream;
-    DWORD LoadAddress;
-    DWORD OffsetAddress;
-    DWORD OffsetAddressEnd;
+    DWORD ImageLoadAddress;
+    DWORD TextSectionRawDataAddress;
+    DWORD TextSectionRawDataLen;
+    DWORD TextSectionLoadAddress;
     DWORD CntAddress;
 public:
-    DASM(BYTE Arch, BYTE CPUMode, BYTE AddressMode, BYTE ByteOrder, string InputFileName, string OutputAddrFileName, string OutputBinFileName, string OutputAsmFileName, DWORD LoadAddress, DWORD OffsetAddress, DWORD OffsetAddressEnd);
+    DASM(BYTE Arch, BYTE CPUMode, BYTE AddressMode, BYTE ByteOrder, string InputFileName, string OutputAddrFileName, string OutputBinFileName, string OutputAsmFileName, DWORD ImageLoadAddress, DWORD TextSectionRawDataAddress, DWORD TextSectionRawDataLen, DWORD TextSectionLoadAddress);
     ~DASM();
     
     void Disassemble();
-    void FileInit(string InputFileName, string OutputAddrFileName, string OutputBinFileName, string OutputAsmFileName, DWORD LoadAddress, DWORD OffsetAddress, DWORD OffsetAddressEnd);
+    void FileInit(string InputFileName, string OutputAddrFileName, string OutputBinFileName, string OutputAsmFileName, DWORD ImageLoadAddress, DWORD TextSectionRawDataAddress, DWORD TextSectionRawDataLen, DWORD TextSectionLoadAddress);
     void BaseInit(BYTE Arch, BYTE CPUMode, BYTE AddressMode, BYTE ByteOrder);
     void ResetMode();
     void INTEL_X86_Init();
@@ -82,12 +83,14 @@ public:
     BYTE GetDefaultSegmentRegister();
     void SetDefaultByteOrder(BYTE DefaultByteOrder);
     BYTE GetDefaultByteOrder();
-    void SetLoadAddress(DWORD LoadAddress);
-    DWORD GetLoadAddress();
-    void SetOffsetAddress(DWORD OffsetAddress);
-    DWORD GetOffsetAddress();
-    void SetOffsetAddressEnd(DWORD OffsetAddressEnd);
-    DWORD GetOffsetAddressEnd();
+    void SetImageLoadAddress(DWORD ImageLoadAddress);
+    DWORD GetImageLoadAddress();
+    void SetTextSectionRawDataAddress(DWORD TextSectionRawDataAddress);
+    DWORD GetTextSectionRawDataAddress();
+    void SetTextSectionRawDataLen(DWORD TextSectionRawDataLen);
+    DWORD GetTextSectionRawDataLen();
+    void SetTextSectionLoadAddress(DWORD TextSectionLoadAddress);
+    DWORD GetTextSectionLoadAddress();
     void AddressInc(DWORD IncVal);
     void SetCntAddress(DWORD CntAddress);
     DWORD GetCntAddress();

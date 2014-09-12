@@ -1,5 +1,5 @@
 //
-//  InstructionDef.h
+//  Intelx86Def.h
 //  UDASM
 //
 //  Basic Definations For Intelx86 Arch
@@ -8,8 +8,8 @@
 //  Copyright (c) 2014年 Uranux. All rights reserved.
 //
 
-#ifndef UDASM_InstructionDef_h
-#define UDASM_InstructionDef_h
+#ifndef UDASM_Intelx86Def_h
+#define UDASM_Intelx86Def_h
 
 #include "BaseDef.h"
 
@@ -373,7 +373,7 @@
 // Special Values For SIB.Base
 #define SIB_NO_BASE_FLAG             0x05
 
-// Index For InstructionDef::Reg
+// Index For Intelx86Def::Reg
 #define REGSIZE_8                    0x00
 #define REGSIZE_16                   0x01
 #define REGSIZE_32                   0x02
@@ -382,7 +382,7 @@
 #define SEGMENT_REG                  0x05 // For Segment Registers
 #define FLOAT_REG                    0x06 // For Float Registers
 
-// Index For InstructionDef::AddressHead
+// Index For Intelx86Def::AddressHead
 #define ADDRESSHEAD_8                0x00 // byte ptr
 #define ADDRESSHEAD_16               0x01 // word ptr
 #define ADDRESSHEAD_32               0x02 // dword ptr
@@ -419,7 +419,7 @@
 #define SIGNED                       0x01
 #define EXTEND_I16_I32               0x02
 
-class InstructionDef
+class Intelx86Def
 {
 private:
     static map<BYTE, string> Prefix[4];
