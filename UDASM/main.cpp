@@ -13,7 +13,7 @@ void OutputVersionInfo()
 {
     cout << "---------------------------------------------" << endl;
     cout << "Uranux Disassembler (UDASM) 1.2 " << endl;
-    cout << "Author: mabin@miaozhen.com      " << endl;
+    cout << "Author: uranux1993@163.com      " << endl;
     cout << "Copyright 2014 Uranux, All Rights Reserved" << endl;
     cout << "---------------------------------------------" << endl;
 }
